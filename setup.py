@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="mc-automation-tools",
+    name="mc_automation_tools",
     author="MC",
     description="Map colonies automation infrastructure kit tools for mutual purpose",
     long_description=long_description,
