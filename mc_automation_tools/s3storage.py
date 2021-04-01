@@ -4,9 +4,9 @@ import os
 import logging
 import boto3
 import botocore
-from server_automation.configuration import config
+from mc_automation_tools.configuration import config
 
-_log = logging.getLogger('server_automation.utils.s3storage')
+_log = logging.getLogger('automation_tools.s3storage')
 
 
 class S3Client:

@@ -8,7 +8,7 @@ import hashlib
 import logging
 import uuid
 
-_log = logging.getLogger('server.common')
+_log = logging.getLogger('automation_tools.common')
 
 
 def url_validator(url):
@@ -42,7 +42,10 @@ def response_parser(resp):
     :return: status code and content dict
     """
     status_code = resp.status_code
-    content_dict = json.loads(resp.text)
+    try:
+        content_dict = json.loads(resp.text)
+    except Exception as e:
+        content_dict = resp.text
     return status_code, content_dict
 
 
