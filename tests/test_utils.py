@@ -39,7 +39,7 @@ def test_combine_url():
 
 def test_response_parser():
     """
-    parsing standart request response
+    parsing standard request response
     """
     mock_response = base_requests.send_get_request("http://www.google.com")
     status_code, content = common.response_parser(mock_response)
