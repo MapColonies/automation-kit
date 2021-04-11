@@ -21,8 +21,8 @@ def send_post_request(url, body, header=None):
             resp = requests.post(url=url, data=json.dumps(body), headers=header)
         else:
             resp = requests.post(url=url, data=json.dumps(body), headers=header, verify=config.CERT_DIR)
-        _log.info("response code: %d", resp.status_code)
-        _log.info("response message: %s", resp.text)
+        _log.debug("response code: %d", resp.status_code)
+        _log.debug("response message: %s", resp.text)
 
     except Exception as e:
         _log.error('failed get response with error: %s', str(e))
