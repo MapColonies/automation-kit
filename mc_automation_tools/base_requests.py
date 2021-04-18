@@ -25,7 +25,7 @@ def send_post_request(url, body, header=None):
         _log.debug("response message: %s", resp.text)
 
     except Exception as e:
-        _log.error('failed get response with error: %s and error of content: %s' , str(e), str(resp.content))
+        _log.error('failed get response with error: %s and error of content:', str(e))
         raise requests.exceptions.RequestException('failed on getting response data from get response with error '
                                                    'message: %s' % str(e))
 
