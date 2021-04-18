@@ -1,5 +1,5 @@
 """unittest module"""
-from mc_automation_tools import base_requests, common, s3storage
+from mc_automation_tools import base_requests, common
 
 
 def test_url_validation():
