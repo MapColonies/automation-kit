@@ -42,10 +42,10 @@ def send_get_request(url):
             resp = requests.get(url, verify=config.CERT_DIR)
         _log.debug("response code: %d", resp.status_code)
         _log.debug("response message: %s", resp.content)
-        # _log.debug("response message: %s" % resp.text)
 
     except Exception as e:
         _log.error('failed get response with error: %s', str(e))
-        raise requests.exceptions.RequestException("failed on getting response data from get response with error message: %s" % str(e))
+        raise requests.exceptions.RequestException("failed on getting response data from get response with error "
+                                                   "message: %s" % str(e))
 
     return resp

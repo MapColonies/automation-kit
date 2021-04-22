@@ -1,14 +1,44 @@
 # pylint: disable=line-too-long, invalid-name
 """Common utils for data parsing and manipulation"""
 import os
+import platform
 import posixpath
 import re
 import json
 import hashlib
 import logging
+import sys
 import uuid
+import requests
+import paramiko
 
 _log = logging.getLogger('automation_tools.common')
+
+
+
+def check_url_exists(url, timeout=20):
+    """
+    This method validate if the url get request will response 200 as working url.
+    If its page error the return dict will include status_code and content keys, if it connection error without
+    response, it will return error_msg key.
+    return result dict that contains: url_valid [boolean], status_code [integer], content [response content], error_msg [str]
+    """
+
+    resp_dict = {'url_valid': False, 'status_code': None, 'content': None, 'error_msg': None}
+    try:
+        request = requests.get(url,timeout=timeout)  # Here is where im getting the error
+        if request.status_code == 200:
+            _log.info(f'Current url: [{url}] working with status code 200')
+            resp_dict['url_valid'] = True
+        else:
+            _log.error(f'unable connect to current url: [{url}], with status code of [{request.status_code}]')
+            _log.error(f'[{url}] connection error, response content [{request.content}]')
+        resp_dict['status_code'] = request.status_code
+        resp_dict['content'] = request.content
+    except Exception as e:
+        _log.error(f'unable connect to current url: [{url}]\nwith error of [{str(e)}]')
+        resp_dict['error_msg'] = str(e)
+    return resp_dict
 
 
 def url_validator(url):
@@ -86,7 +116,8 @@ def get_environment_variable(name, default_val):
             try:
                 value = type(default_val)(value)
             except ValueError:
-                _log.warning('Failed to convert environment variable %s=%s to %s', name, str(value), type(default_val).__name__)
+                _log.warning('Failed to convert environment variable %s=%s to %s', name, str(value),
+                             type(default_val).__name__)
                 value = default_val
 
     else:
@@ -130,24 +161,41 @@ def generate_uuid():
     """
     return str(uuid.uuid4())
 
-# def init_logger():
-#     """Init logging mechanism for entire running"""
-#     log_mode = get_environment_variable('DEBUG_LOGS', False)
-#     logger = logging.getLogger()
-#     logger.setLevel(logging.DEBUG)
-#     # create console handler with a higher log level
-#     #
-#     # if (logger.hasHandlers()):
-#     #     logger.handlers.clear()
-#
-#     ch = logging.StreamHandler()
-#     if not log_mode:
-#         ch.setLevel(logging.INFO)
-#     else:
-#         ch.setLevel(logging.DEBUG)
-#
-#     # create formatter and add it to the handlers
-#     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-#     ch.setFormatter(formatter)
-#     # add the handlers to the logger
-#     logger.addHandler(ch)
+def ping_to_ip(address):
+    """
+    This method implements system's command to check if some machine is alive (ping)
+    """
+    response = os.system("ping -c 1 " + address + "> /dev/null")
+    # and then check the response...
+    if response == 0:
+        _log.debug(f"{address} Active")
+        pingstatus = True
+    else:
+        _log.error(f"{address} Not reachable")
+        pingstatus = False
+
+    return pingstatus
+
+    #
+    #     pass
+    # def init_logger():
+    #     """Init logging mechanism for entire running"""
+    #     log_mode = get_environment_variable('DEBUG_LOGS', False)
+    #     logger = logging.getLogger()
+    #     logger.setLevel(logging.DEBUG)
+    #     # create console handler with a higher log level
+    #     #
+    #     # if (logger.hasHandlers()):
+    #     #     logger.handlers.clear()
+    #
+    #     ch = logging.StreamHandler()
+    #     if not log_mode:
+    #         ch.setLevel(logging.INFO)
+    #     else:
+    #         ch.setLevel(logging.DEBUG)
+    #
+    #     # create formatter and add it to the handlers
+    #     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    #     ch.setFormatter(formatter)
+    #     # add the handlers to the logger
+    #     logger.addHandler(ch)

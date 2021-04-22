@@ -4,6 +4,7 @@ import os
 import logging
 import boto3
 import botocore
+import requests
 from mc_automation_tools.configuration import config
 
 _log = logging.getLogger('automation_tools.s3storage')
@@ -44,6 +45,11 @@ class S3Client:
     def get_client(self):
         """return initialized s3 client object"""
         return self._client
+
+    def get_resource(self):
+        """return initialized s3 resource object"""
+        return self._resource
+
 
     def create_new_bucket(self, bucket_name):
         """
@@ -110,6 +116,26 @@ class S3Client:
                                                                                                   Params={'Bucket': bucket,
                                                                                                           'Key': object_key},
                                                                                                   ExpiresIn=config.S3_DOWNLOAD_EXPIRATION_TIME)
+    def is_bucket_exists(self,bucket_name):
+        """
+        This method check specific bucket on s3 connection if exists
+        :param bucket_name: name of specific bucket
+        :return: tuple included - bool-exists or not, int-status code of response from bucket, str-string with message response
+        """
+        try:
+            res = self.get_resource().meta.client.head_bucket(Bucket=bucket_name)
+            _log.info(f"Bucket: [{bucket_name}] Exists!")
+            return True, res['ResponseMetadata']['HTTPStatusCode'], 'Exists'
+        except botocore.exceptions.ClientError as e:
+            # If a client error is thrown, then check that it was a 404 error.
+            # If it was a 404 error, then the bucket does not exist.
+            error_code = int(e.response['Error']['Code'])
+            if error_code == 403:
+                _log.error(f" {bucket_name} is private Bucket. Forbidden Access!")
+                return True, error_code, 'Forbidden Access'
+            elif error_code == 404:
+                _log.error(f"{bucket_name} bucket Does Not Exist!")
+                return False, error_code, 'bucket Does Not Exist'
 
     def is_file_exist(self, bucket_name, object_key):
         """
@@ -134,3 +160,46 @@ class S3Client:
         return True
         # def get_download_urls(self):
         # return self._download_urls
+
+
+def check_s3_valid(end_point, access_key, secret_key, bucket_name=None):
+    """
+    This method validate correct connection to s3
+    :param end_point: base end point url to s3 server
+    :param access_key: aws access key
+    :param secret_key: aws secret key
+    :param bucket_name: specific s3 known exists bucket
+
+    :return: dict with the follow info url_valid & status_code & content & error_msg
+    """
+    resp_dict = {'url_valid': False, 'status_code': None, 'content': None, 'error_msg': None}
+
+    try:
+        resp = requests.get(end_point)
+        if resp.status_code > 200 or resp.status_code < 500:
+            resp_dict['url_valid'] = True
+            resp_dict['status_code'] = resp.status_code
+            resp_dict['content'] = resp.content
+
+            s3_conn = S3Client(end_point, access_key, secret_key)
+            res = s3_conn.is_bucket_exists(bucket_name)
+            resp_dict['url_valid'] = res[0]
+            resp_dict['status_code'] = res[1]
+            resp_dict['content'] = res[2]
+        else:
+            resp_dict['url_valid'] = False
+            resp_dict['status_code'] = resp.status_code
+            resp_dict['content'] = resp.content
+            resp_dict['error_msg'] = 'error on url'
+
+
+    except Exception as e:
+        _log.error(f'unable connect to current url: [{end_point}]\nwith error of [{str(e)}]')
+        resp_dict['error_msg'] = str(e)
+
+
+    return resp_dict
+
+
+
+    # s3_conn = s3storage.S3Client(end_point, access_key, secret_key)
