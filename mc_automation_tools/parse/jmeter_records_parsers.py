@@ -13,7 +13,7 @@ logger = logging.getLogger('jmeter_records_parsers')
 
 url = "/home/ronenk1/dev/apache-jmeter-5.3/tests/summary_wmts_openshift.csv"# todo - delete after debug
 url_wms = "/home/ronenk1/dev/apache-jmeter-5.3/tests/wms-res.jtl" # todo - delete after debug
-
+url_wmts_jtl = "/home/ronenk1/dev/apache-jmeter-5.3/tests/map_proxy_tests_jmeter/stress/wmts/27-04-21-07:02:27/wmts-res.jtl"
 
 def generate_tiles_csv(orig_file_url, mode="jmeter_csv"):
     """
@@ -93,7 +93,7 @@ def write_dict_to_csv(dict_list, output_dir="/tmp",protocol="wms"):
     file_url = common.combine_url(output_dir, ".".join([protocol, 'csv']))
     if protocol=="wmts":
         with open(file_url, mode="w") as wmts_file:
-            wmts_writer = csv.writer(wmts_file, delimiter='\t', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            wmts_writer = csv.writer(wmts_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             for request in dict_list:
                 request_list = [request['tile_matrix'], request['tile_cols'], request['tile_rows']]
                 wmts_writer.writerow(request_list)
@@ -121,7 +121,24 @@ def write_dict_to_csv(dict_list, output_dir="/tmp",protocol="wms"):
         raise Exception('Unknown parsing mode, choose wms or wmts')
 
 
-list_url = generate_tiles_csv(url_wms, "jtl")
-result = generate_wms_csv(list_url)
+list_url = generate_tiles_csv(url_wmts_jtl, "jtl")
+
+
+def generate_wmts_jtl(list_url):
+    dict_list = []
+    for url in list_url:
+        if 'http://map-raster.apps.v0h0bdx6.eastus.aroapp.io/wmts/full_il/newGrids/' in url:
+            tmp = url.split('.')[-2]
+            tmp = tmp.split('/')[-3:]
+            res_dict = {'tile_matrix': int(tmp[0]),
+                        'tile_cols': int(tmp[1]),
+                        'tile_rows': int(tmp[2])}
+            dict_list.append(res_dict)
+
+    return dict_list
+
+
+result = generate_wmts_jtl(list_url)
+# result = generate_wms_csv(list_url)
 # result = generate_wmts_csv(list_url)
-result = write_dict_to_csv(result, "/tmp", "wms")
+result = write_dict_to_csv(result, "/tmp", "wmts")
