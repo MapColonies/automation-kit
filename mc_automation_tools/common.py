@@ -11,7 +11,7 @@ import sys
 import uuid
 import requests
 import paramiko
-
+import datetime
 _log = logging.getLogger('automation_tools.common')
 
 
@@ -161,6 +161,7 @@ def generate_uuid():
     """
     return str(uuid.uuid4())
 
+
 def ping_to_ip(address):
     """
     This method implements system's command to check if some machine is alive (ping)
@@ -176,26 +177,19 @@ def ping_to_ip(address):
 
     return pingstatus
 
-    #
-    #     pass
-    # def init_logger():
-    #     """Init logging mechanism for entire running"""
-    #     log_mode = get_environment_variable('DEBUG_LOGS', False)
-    #     logger = logging.getLogger()
-    #     logger.setLevel(logging.DEBUG)
-    #     # create console handler with a higher log level
-    #     #
-    #     # if (logger.hasHandlers()):
-    #     #     logger.handlers.clear()
-    #
-    #     ch = logging.StreamHandler()
-    #     if not log_mode:
-    #         ch.setLevel(logging.INFO)
-    #     else:
-    #         ch.setLevel(logging.DEBUG)
-    #
-    #     # create formatter and add it to the handlers
-    #     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    #     ch.setFormatter(formatter)
-    #     # add the handlers to the logger
-    #     logger.addHandler(ch)
+
+def generate_datatime_zulu(current=True, time_dict=None):
+    """
+    generate current time on zulu format
+    :param current: if curren=True (as default) will return current time, if False wil generate by time_dict
+    :param time_dict: should be as example: {'year':2020, 'month':12, 'day':12, 'hour':12, 'minute':10,'second':10}
+    """
+    if current:
+        res = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')
+    elif time_dict:
+        res = datetime.datetime(time_dict['year'], time_dict['month'], time_dict['day'], time_dict['hour'],
+                                time_dict['minute'], time_dict['second']).strftime('%Y-%m-%dT%H:%M:%SZ')
+    else:
+        raise ValueError("Should provide current=True param or time dictionary value")
+
+    return res
