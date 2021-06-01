@@ -8,6 +8,7 @@ import json
 import hashlib
 import logging
 import sys
+import zipfile
 import uuid
 import requests
 import paramiko
@@ -193,3 +194,17 @@ def generate_datatime_zulu(current=True, time_dict=None):
         raise ValueError("Should provide current=True param or time dictionary value")
 
     return res
+
+
+def zipdir(path, ziph):
+    # ziph is zipfile handle
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            ziph.write(os.path.join(root, file),
+                       os.path.relpath(os.path.join(root, file),
+                                       os.path.join(path, '..')))
+
+
+# zipf = zipfile.ZipFile('Python.zip', 'w', zipfile.ZIP_DEFLATED)
+# zipdir('tmp/', zipf)
+# zipf.close()
