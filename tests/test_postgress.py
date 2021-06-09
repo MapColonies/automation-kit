@@ -4,7 +4,7 @@ import json
 from datetime import datetime as dt
 # dt = str(datetime.now(timezone.utc))
 
-from mc_automation_tools import postgress
+from mc_automation_tools import postgres
 user = os.environ['PG_USER']
 password = os.environ['PG_PASS']
 host = os.environ['PG_HOST']
@@ -33,8 +33,7 @@ command = f'INSERT INTO "v_buildings"("entity_id","layer_id","name","type",dateC
           f"VALUES({uuid},'416','building_1','building','{str(dt.now())}','{str(dt.now())}',ST_GeomFromGeoJSON('{geo_json}'),'{entity_sample}')"
 def test_connection():
     """This test check connection to db"""
-    client = postgress.PGClass(host, db_name, user, password)
-    assert True
+    client = postgres.PGClass(host, db_name, user, password)
     commands = ["CREATE TABLE v_buildings "
                 "(entity_id UUID PRIMARY KEY,"
                 "layer_id VARCHAR(255) NOT NULL,"
@@ -52,7 +51,7 @@ def test_connection():
 # command = f'INSERT INTO "v_buildings"("entity_id","name","type","dateCreation","updateCreation","polygon",json_object' \
 #           f'VALUES("{uuid}","416","building_1","building",{dt},{dt},{entity_sample["geo_json"]},{json.dumps(entity_sample)} )'
 def test_insert(command):
-    client = postgress.PGClass(host, db_name, user, password)
+    client = postgres.PGClass(host, db_name, user, password)
     client.command_execute([command])
 # test_connection()
 test_insert(command)
