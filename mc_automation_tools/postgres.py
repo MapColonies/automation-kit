@@ -3,6 +3,7 @@ This module adapt and provide useful access to postgressSQL DB
 """
 import logging
 import psycopg2
+
 _log = logging.getLogger('automation_tools.postgress')
 
 
@@ -38,6 +39,7 @@ class PGClass:
         except (Exception, psycopg2.DatabaseError) as e:
             _log.error(str(e))
             raise e
+
     # def create_table(self, table_name, primary_key, columns):
     #     """
     #     This method add new table according to provided table_name and
@@ -57,3 +59,86 @@ class PGClass:
     #     for key in columns:
     #
     #     pass
+
+    def get_column_by_name(self, table_name, column_name):
+        """
+        This method return list of column data by providing column name
+        """
+        command = f"SELECT {column_name} FROM {table_name}"
+        try:
+            cur = self.conn.cursor()
+            cur.execute(command)
+            res = cur.fetchall()
+            cur.close()
+        except Exception as e:
+            _log.error(str(e))
+            raise e
+        return [uuid[0] for uuid in res]
+
+    def update_value_by_pk(self, pk, pk_value, table_name, column, value):
+        """This method will update column by provided primary key and table name """
+        command = f"""UPDATE {table_name} SET "{column}"='{value}' WHERE {pk} = '{pk_value}'"""
+        try:
+            cur = self.conn.cursor()
+            cur.execute(command)
+
+            self.conn.commit()
+            cur.close()
+
+        except Exception as e:
+            _log.error(str(e))
+            raise e
+
+    def polygon_to_geojson(self, column, table_name, pk, pk_value):
+        """
+        This method query for geometry object and return as geojson format readable
+        """
+        command = f"""select st_AsGeoJSON({column}) from {table_name} where {pk}='{pk_value}'"""
+        try:
+            cur = self.conn.cursor()
+            cur.execute(command)
+            res = cur.fetchall()
+            cur.close()
+        except Exception as e:
+            _log.error(str(e))
+            raise e
+
+        return res
+
+    def delete_row_by_id(self, table_name, pk, pk_value):
+        """
+        Delete entire row by providing key and value [primary key]
+        """
+        command = f"""delete from {table_name} where {pk}='{pk_value}'"""
+        try:
+            cur = self.conn.cursor()
+            cur.execute(command)
+
+            self.conn.commit()
+            cur.close()
+
+        except Exception as e:
+            _log.error(str(e))
+            raise e
+
+    def drop_table(self, table_name):
+        """
+        This method will drop table by providing name of table to drop
+        """
+        command = f"""DROP TABLE {table_name} CASCADE"""
+        cur = self.conn.cursor()
+        cur.execute(command)
+        self.conn.commit()
+        cur.close()
+
+    def truncate_table(self, table_name):
+        """
+        This method will empty and remove all rows on table by providing name of table to drop
+        """
+        command = f"""TRUNCATE TABLE {table_name}"""
+        cur = self.conn.cursor()
+        cur.execute(command)
+        self.conn.commit()
+        cur.close()
+
+

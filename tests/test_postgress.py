@@ -54,5 +54,44 @@ def test_insert(command):
     client = postgres.PGClass(host, db_name, user, password)
     client.command_execute([command])
 # test_connection()
-test_insert(command)
+# test_insert(command)
 # ST_GeomFromGeoJSON()
+def test_get_column(table_name, column_name):
+    client = postgres.PGClass(host, db_name, user, password)
+    res = client.get_column_by_name(table_name, column_name)
+    return res
+geo_json_test = {'type': 'Polygon', 'coordinates': [[[-76.904982, 38.894971], [-76.904858, 38.895051], [-76.904982, 38.894971]]]}
+
+def test_update_column(uuid):
+    client = postgres.PGClass(host, db_name, user, password)
+    client.update_value_by_pk('entity_id', uuid, 'v_buildings', 'polygon', json.dumps(geo_json_test))
+
+def test_polygon_convertor(uuid):
+    client = postgres.PGClass(host, db_name, user, password)
+    res = client.polygon_to_geojson('polygon','v_buildings', 'entity_id', uuid)
+    return res
+
+def test_delete_row(uuid):
+    client = postgres.PGClass(host, db_name, user, password)
+    client.delete_row_by_id('v_buildings', 'entity_id', uuid)
+
+def test_drop_table(table_name):
+    client = postgres.PGClass(host, db_name, user, password)
+    client.drop_table(table_name)
+
+def test_truncate_table(table_name):
+    client = postgres.PGClass(host, db_name, user, password)
+    client.truncate_table(table_name)
+
+res = test_get_column('v_buildings', 'entity_id')
+
+# test_update_column(res[0])
+# uuid = res[0]
+# res = test_get_column('v_buildings', 'polygon')
+# res = test_polygon_convertor(uuid)
+#
+# print(res)
+# test_delete_row(uuid)
+# test_drop_table('v_buildings')
+test_truncate_table('v_buildings')
+
