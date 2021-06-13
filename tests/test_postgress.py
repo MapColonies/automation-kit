@@ -85,6 +85,11 @@ def test_truncate_table(table_name):
 
 res = test_get_column('v_buildings', 'entity_id')
 
+def test_multi_get(table_name):
+    client = postgres.PGClass(host, db_name, user, password)
+    args = ["1ee81333-eafa-4317-804d-4ebccbd7cc76", "abb78b7d-76fc-4fd8-86ca-454dc3934542", "49d0aa17-3ca8-4977-bab7-4ef0644594d0", "f1ee697b-7f7f-4baf-946a-ab0184e4e75b"]
+    res = client.get_by_n_argument(table_name, 'entity_id', args,'json_object')
+    return res
 # test_update_column(res[0])
 # uuid = res[0]
 # res = test_get_column('v_buildings', 'polygon')
@@ -93,5 +98,8 @@ res = test_get_column('v_buildings', 'entity_id')
 # print(res)
 # test_delete_row(uuid)
 # test_drop_table('v_buildings')
-test_truncate_table('v_buildings')
+# test_truncate_table('v_buildings')
 
+res = test_multi_get('v_buildings')
+for r in res:
+    print('\n',r,'\n')

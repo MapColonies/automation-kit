@@ -73,7 +73,7 @@ class PGClass:
         except Exception as e:
             _log.error(str(e))
             raise e
-        return [uuid[0] for uuid in res]
+        return [var[0] for var in res]
 
     def update_value_by_pk(self, pk, pk_value, table_name, column, value):
         """This method will update column by provided primary key and table name """
@@ -135,10 +135,31 @@ class PGClass:
         """
         This method will empty and remove all rows on table by providing name of table to drop
         """
-        command = f"""TRUNCATE TABLE {table_name}"""
+        command = f"""TRUNCATE TABLE {table_name} """
         cur = self.conn.cursor()
         cur.execute(command)
         self.conn.commit()
         cur.close()
 
 
+    def get_by_n_argument(self, table_name, pk, pk_values,column):
+        """
+        This method send query with multiple number of pk arguments
+        :param table_name: table name
+        :param pk: primary key
+        :param pk_values: list of arguments
+        """
+        for idx, i in enumerate(pk_values):
+            pk_values[idx] = f"'{i}'"
+        args_str = ','.join(pk_values)
+        command = f"""select {column} from {table_name} where {pk} in ({args_str})"""
+        try:
+            cur = self.conn.cursor()
+            cur.execute(command)
+            res = cur.fetchall()
+            cur.close()
+        except Exception as e:
+            _log.error(str(e))
+            raise e
+        res = [r[0] for r in res]
+        return res
