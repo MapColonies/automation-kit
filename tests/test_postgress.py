@@ -100,6 +100,16 @@ def test_multi_get(table_name):
 # test_drop_table('v_buildings')
 # test_truncate_table('v_buildings')
 
-res = test_multi_get('v_buildings')
-for r in res:
-    print('\n',r,'\n')
+def test_multi_row():
+    # v= [('00000543-1b1f-4890-b7f3-f8de46b4ced2', "{'g':1}"),('000105f4-cf53-4ad4-b633-b580e17513e6',"{'g':1}"),('0003a8b9-61bd-491c-bd12-897e77fd3208',"{'g':1}")]
+    v= [('00000543-1b1f-4890-b7f3-f8de46b4ced2', json.dumps({'g':1})),('000105f4-cf53-4ad4-b633-b580e17513e6',json.dumps({'g':1})),('0003a8b9-61bd-491c-bd12-897e77fd3208',json.dumps({'g':1}))]
+    client = postgres.PGClass(host, db_name, user, password)
+    client.update_multi_with_multi('v_buildings','entity_id','json_object',v,'uuid','json')
+
+
+# res = test_multi_get('v_buildings')
+# for r in res:
+#     print('\n',r,'\n')
+
+
+test_multi_row()

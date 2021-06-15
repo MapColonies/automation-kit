@@ -3,7 +3,7 @@ This module adapt and provide useful access to postgressSQL DB
 """
 import logging
 import psycopg2
-
+import json
 _log = logging.getLogger('automation_tools.postgress')
 
 
@@ -141,13 +141,13 @@ class PGClass:
         self.conn.commit()
         cur.close()
 
-
-    def get_by_n_argument(self, table_name, pk, pk_values,column):
+    def get_by_n_argument(self, table_name, pk, pk_values, column):
         """
         This method send query with multiple number of pk arguments
         :param table_name: table name
         :param pk: primary key
         :param pk_values: list of arguments
+        :param column: column name to get
         """
         for idx, i in enumerate(pk_values):
             pk_values[idx] = f"'{i}'"
@@ -163,3 +163,23 @@ class PGClass:
             raise e
         res = [r[0] for r in res]
         return res
+
+    def update_multi_with_multi(self, table_name, pk, column, values, type_pk, type_col):
+        """
+         Insert multiple rows with one query
+        """
+        update_query = f"""with vals (i,j) as (values"""
+        for v in values:
+            update_query = update_query + f""" (cast('{v[0]}' as {type_pk}),cast('{v[1]}' as {type_col})),"""
+            # update_query = update_query + f""" ('{v[0]}' ,'{v[1]}'),"""
+        update_query = update_query[:-1]+")"
+        update_query = update_query + f""" update {table_name} set {column} = vals.j from vals where {table_name}.{pk} = vals.i;"""
+        # update = f"""update {table_name} set {column} = vals.j from vals where {table_name}.{pk} = vals.i;"""
+
+        # insert_query = f"""insert into {table_name} ({pk}, {column}) values {records_list_template}"""
+        cur = self.conn.cursor()
+        cur.execute(update_query)
+        # cur.execute(update)
+
+        self.conn.commit()
+        cur.close()
