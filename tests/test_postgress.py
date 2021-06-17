@@ -87,7 +87,7 @@ res = test_get_column('v_buildings', 'entity_id')
 
 def test_multi_get(table_name):
     client = postgres.PGClass(host, db_name, user, password)
-    args = ["1ee81333-eafa-4317-804d-4ebccbd7cc76", "abb78b7d-76fc-4fd8-86ca-454dc3934542", "49d0aa17-3ca8-4977-bab7-4ef0644594d0", "f1ee697b-7f7f-4baf-946a-ab0184e4e75b"]
+    args = ["000075a3-d5ba-463a-953c-d40d700cac0b", "0001a442-f24e-45e6-9c9f-2059d918a8de", "0000dc0d-3ef6-4451-ba9d-a64ca04a7fe6", "0003624e-b970-44db-aced-12ae2c05f793"]
     res = client.get_by_n_argument(table_name, 'entity_id', args,'json_object')
     return res
 # test_update_column(res[0])
@@ -107,9 +107,9 @@ def test_multi_row():
     client.update_multi_with_multi('v_buildings','entity_id','json_object',v,'uuid','json')
 
 
-# res = test_multi_get('v_buildings')
+res = test_multi_get('v_buildings')
 # for r in res:
 #     print('\n',r,'\n')
 
 
-test_multi_row()
+# test_multi_row()
