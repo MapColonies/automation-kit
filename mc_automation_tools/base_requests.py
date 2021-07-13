@@ -10,7 +10,7 @@ from mc_automation_tools.configuration import config
 _log = logging.getLogger('automation_tools.requests')
 
 
-def send_post_request(url, body, header=None):
+def send_post_request(url, body={}, header=None):
     """ send http post request by providing post full url + body , header is optional, by default:content-type': 'application/json',
     "accept": "*/* """
     common.url_validator(url)
