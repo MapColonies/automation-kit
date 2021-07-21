@@ -6,6 +6,7 @@ import os
 import datetime
 import decimal
 
+
 class ExtType(enum.Enum):
     """
     Types of file extention
@@ -54,3 +55,10 @@ def generate_oversear_request(shape_metadata_shp, product_shp, files_shp, img_di
                                                       "bbox": files_shp['features'][0]['geometry']['coordinates'][0][:-1]}
 
     return request_json
+
+
+def update_shape_source_name(shape_file, new_name):
+    """will update shapefile source name """
+    shp_file = geopandas.read_file(shape_file)
+    shp_file.Source[0] = new_name
+    shp_file.to_file(shape_file)
