@@ -183,3 +183,52 @@ class PGClass:
 
         self.conn.commit()
         cur.close()
+
+
+    def get_rows_by_keys(self, table_name, keys_values,order_key=None,order_desc=False,return_as_dict=False):
+        """
+        This method returns rows that suitable on several keys-values
+        :param table_name: table name
+        :param keys_values: list of dict with columns keys values
+        :param order_key: str of key for ordering query - not mendatory
+        :param order_desc: order method - not mendatory as default ASC
+        """
+
+        key_value_stat = []
+        for key, val in keys_values.items():
+            key_value_stat.append(f""""{key}" = '{val}'""")
+
+        key_value_stat = """ and """.join(key_value_stat)
+
+        if not order_key:
+            command = f"""select * from "{table_name}" where ({key_value_stat})"""
+        else:
+            asc_desc = 'asc' if not order_desc else 'desc'
+            command = f"""select * from "{table_name}" where ({key_value_stat}) order by "{order_key}" {asc_desc}"""
+        try:
+            cur = self.conn.cursor()
+            cur.execute(command)
+            if return_as_dict:
+                columns = list(cur.description)
+                res = cur.fetchall()
+
+                results = []
+                for row in res:
+                    row_dict = {}
+                    for i, col in enumerate(columns):
+                        row_dict[col.name] = row[i]
+                    results.append(row_dict)
+
+                    return results
+
+            else:
+                res = cur.fetchall()
+                cur.close()
+                return res
+        except Exception as e:
+            _log.error(str(e))
+            raise e
+        # res = [r[0] for r in res]
+        # return res
+
+

@@ -8,4 +8,6 @@ PyJWT
 paramiko
 shapely
 pandas
+geopandas
+ogr
 psycopg2-binary==2.8.6
