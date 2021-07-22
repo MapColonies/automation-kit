@@ -57,8 +57,20 @@ def generate_oversear_request(shape_metadata_shp, product_shp, files_shp, img_di
     return request_json
 
 
-def update_shape_source_name(shape_file, new_name):
-    """will update shapefile source name """
+def add_ext_source_name(shape_file, ext, new_name=False):
+    """
+    will update shapefile source name
+    :param shape_file: original metadata shape file
+    :param ext: extension to original name
+    :param new_name: if True -> will set ext as entire name
+    :return: new rendered name
+    """
     shp_file = geopandas.read_file(shape_file)
-    shp_file.Source[0] = new_name
+    if new_name:
+        source_new_name = ext
+    else:
+        source_new_name = "_".join([ext, shp_file.Source[0]])
+    shp_file.Source[0] = source_new_name
     shp_file.to_file(shape_file)
+
+    return source_new_name
