@@ -63,14 +63,15 @@ def add_ext_source_name(shape_file, ext, new_name=False):
     :param shape_file: original metadata shape file
     :param ext: extension to original name
     :param new_name: if True -> will set ext as entire name
-    :return: new rendered name
+    :return: new rendered name [str]
     """
     shp_file = geopandas.read_file(shape_file)
     if new_name:
         source_new_name = ext
     else:
         source_new_name = "_".join([ext, shp_file.Source[0]])
-    shp_file.Source[0] = source_new_name
-    shp_file.to_file(shape_file)
+    # shp_file.Source[0] = source_new_name
+    shp_file.Source.update(source_new_name)
+    shp_file.to_file(shape_file, encoding='utf-8')
 
     return source_new_name
