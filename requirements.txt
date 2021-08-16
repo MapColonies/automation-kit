@@ -10,4 +10,7 @@ shapely
 pandas
 geopandas
 ogr
+python-graphql-client
+graphqlclient
+xmltodict
 psycopg2-binary==2.8.6

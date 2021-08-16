@@ -137,6 +137,36 @@ class S3Client:
                 _log.error(f"{bucket_name} bucket Does Not Exist!")
                 return False, error_code, 'bucket Does Not Exist'
 
+    def _is_object_exists(self, bucket_name, path):
+        bucket = self._resource.Bucket(bucket_name)
+        for object_summary in bucket.objects.filter(Prefix=path):
+            return True
+        return False
+
+
+    def delete_folder(self,bucket_name, object_key):
+        """
+        Will delete entire folder on provided bucket
+        """
+        if not self._is_object_exists(bucket_name, object_key):
+            return True
+        try:
+            objects_to_delete = self._resource.meta.client.list_objects(Bucket=bucket_name, Prefix=object_key)
+            delete_keys = {'Objects': []}
+            delete_keys['Objects'] = [{'Key': k} for k in [obj['Key'] for obj in objects_to_delete.get('Contents', [])]]
+
+            self._resource.meta.client.delete_objects(Bucket=bucket_name, Delete=delete_keys)
+
+        except botocore.exceptions.ClientError as e:
+            if e.response['Error']['Code'] == "404":
+                return False
+
+            _log.error(str(e))
+            raise e
+        except Exception as e2:
+            _log.error(str(e2))
+            raise e2
+
     def is_file_exist(self, bucket_name, object_key):
         """
         Validate if some file exists on specific bucket in OS based on provided object key and bucket name

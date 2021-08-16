@@ -185,6 +185,39 @@ class PGClass:
         cur.close()
 
 
+    def get_rows_by_order(self, table_name, order_key=None, order_desc=False, return_as_dict=False):
+        """
+        This method will query for entire table rows order by spesific parameter
+        """
+
+        asc_desc = 'asc' if not order_desc else 'desc'
+        command = f"""select * from "{table_name}" order by "{order_key}" {asc_desc}"""
+
+        try:
+            cur = self.conn.cursor()
+            cur.execute(command)
+            if return_as_dict:
+                columns = list(cur.description)
+                res = cur.fetchall()
+
+                results = []
+                for row in res:
+                    row_dict = {}
+                    for i, col in enumerate(columns):
+                        row_dict[col.name] = row[i]
+                    results.append(row_dict)
+
+                return results
+
+            else:
+                res = cur.fetchall()
+                cur.close()
+                return res
+        except Exception as e:
+            _log.error(str(e))
+            raise e
+
+
     def get_rows_by_keys(self, table_name, keys_values,order_key=None,order_desc=False,return_as_dict=False):
         """
         This method returns rows that suitable on several keys-values
@@ -219,7 +252,7 @@ class PGClass:
                         row_dict[col.name] = row[i]
                     results.append(row_dict)
 
-                    return results
+                return results
 
             else:
                 res = cur.fetchall()

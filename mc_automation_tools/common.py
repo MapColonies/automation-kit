@@ -1,17 +1,14 @@
 # pylint: disable=line-too-long, invalid-name
 """Common utils for data parsing and manipulation"""
 import os
-import platform
 import posixpath
 import re
 import json
 import hashlib
 import logging
-import sys
-import zipfile
+import xmltodict
 import uuid
 import requests
-import paramiko
 import datetime
 _log = logging.getLogger('automation_tools.common')
 
@@ -205,6 +202,15 @@ def zipdir(path, ziph):
                                        os.path.join(path, '..')))
 
 
-# zipf = zipfile.ZipFile('Python.zip', 'w', zipfile.ZIP_DEFLATED)
-# zipdir('tmp/', zipf)
-# zipf.close()
+def get_xml_as_dict(url):
+    """
+    This method request xml and return response as dict [ordered]
+    """
+    try:
+        response = requests.get(url)
+        dict_data = xmltodict.parse(response.content)
+        return dict_data
+
+    except Exception as e:
+        _log.error(f'Failed getting xml object from url [{url}] with error: {str(e)}')
+        raise Exception(f'Failed getting xml object from url [{url}] with error: {str(e)}')
