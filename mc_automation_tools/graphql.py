@@ -2,6 +2,7 @@
 This module wrap and provide pytonic client interface to integrate with graphql server
 """
 from mc_automation_tools.configuration import config
+from mc_automation_tools import common
 # from graphqlclient import GraphQLClient
 
 from python_graphql_client import GraphqlClient
@@ -20,5 +21,13 @@ class GqlClient:
         return res
 
     def get_jobs_tasks(self, query=config.JOB_TASK_QUERY, variables=None):
-        res = self.client.execute(query=query, variables=variables)
-        return res
+        retry = 3
+        for i in range(retry):
+            try:
+                res = self.client.execute(query=query, variables=variables)
+                return res
+            except Exception as e:
+                continue
+            time.sleep(3)
+        raise Exception(f'Failed access to gql after {i+1} / {retry} tries')
+        # return res

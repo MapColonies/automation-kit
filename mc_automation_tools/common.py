@@ -6,12 +6,14 @@ import re
 import json
 import hashlib
 import logging
+import time
+
 import xmltodict
 import uuid
 import requests
 import datetime
-_log = logging.getLogger('automation_tools.common')
 
+_log = logging.getLogger('automation_tools.common')
 
 
 def check_url_exists(url, timeout=20):
@@ -24,7 +26,7 @@ def check_url_exists(url, timeout=20):
 
     resp_dict = {'url_valid': False, 'status_code': None, 'content': None, 'error_msg': None}
     try:
-        request = requests.get(url,timeout=timeout)  # Here is where im getting the error
+        request = requests.get(url, timeout=timeout)  # Here is where im getting the error
         if request.status_code == 200:
             _log.info(f'Current url: [{url}] working with status code 200')
             resp_dict['url_valid'] = True
@@ -214,3 +216,14 @@ def get_xml_as_dict(url):
     except Exception as e:
         _log.error(f'Failed getting xml object from url [{url}] with error: {str(e)}')
         raise Exception(f'Failed getting xml object from url [{url}] with error: {str(e)}')
+
+
+def retry(fun, max_tries=10):
+    for i in range(max_tries):
+        try:
+            time.sleep(0.3)
+            res = fun
+            return res
+        except Exception:
+            continue
+    raise TimeoutError(f'Tried max retries running function {fun}')
