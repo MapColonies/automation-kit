@@ -109,7 +109,7 @@ class PGClass:
         """
         Delete entire row by providing key and value [primary key]
         """
-        command = f"""delete from {table_name} where {pk}='{pk_value}'"""
+        command = f"""delete from "{table_name}" where "{pk}"='{pk_value}'"""
         try:
             cur = self.conn.cursor()
             cur.execute(command)
