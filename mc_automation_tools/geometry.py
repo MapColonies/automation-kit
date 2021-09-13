@@ -13,6 +13,16 @@ def get_polygon_area(coordinates):
     return area
 
 
+def bounding_box(points):
+    """
+    The function calculates bounding_box from the coordinates. XY - Min , XY - Max
+    :param points: coordinates list
+    :return: List of bounding box.
+    """
+    x_coordinates, y_coordinates = zip(*points)
+    return [(min(x_coordinates), min(y_coordinates)), (max(x_coordinates), max(y_coordinates))]
+
+
 def get_polygon_perimeter(coordinates):
     """
     This method calculate perimeter
@@ -28,4 +38,3 @@ def process_polygon(coordinates):
     """Pass list of co-ordinates to Shapely Polygon function and get polygon object"""
 
     return Polygon(coordinates)
-
