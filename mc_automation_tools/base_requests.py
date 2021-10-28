@@ -32,14 +32,14 @@ def send_post_request(url, body={}, header=None):
     return resp
 
 
-def send_get_request(url):
+def send_get_request(url, params=None):
     """ send http get request by providing get full url """
     common.url_validator(url)
     try:
         if not config.CERT_DIR:
-            resp = requests.get(url)
+            resp = requests.get(url, params)
         else:
-            resp = requests.get(url, verify=config.CERT_DIR)
+            resp = requests.get(url, params,verify=config.CERT_DIR, timeout=120)
         _log.debug("response code: %d", resp.status_code)
         _log.debug("response message: %s", resp.content)
 
