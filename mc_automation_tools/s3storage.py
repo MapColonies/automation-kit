@@ -191,6 +191,17 @@ class S3Client:
         # def get_download_urls(self):
         # return self._download_urls
 
+    def list_folder_content(self,bucket_name,directory_name):
+        """
+
+        :return:
+        """
+        bucket = self._resource.Bucket(bucket_name)
+        #
+        #
+        # for object_summary in bucket.objects.filter(Prefix=f"{directory_name}/"):
+        #     print(object_summary.key)
+        return bucket.objects.filter(Prefix=f"{directory_name}/")
 
 def check_s3_valid(end_point, access_key, secret_key, bucket_name=None):
     """
@@ -229,7 +240,6 @@ def check_s3_valid(end_point, access_key, secret_key, bucket_name=None):
 
 
     return resp_dict
-
 
 
     # s3_conn = s3storage.S3Client(end_point, access_key, secret_key)
