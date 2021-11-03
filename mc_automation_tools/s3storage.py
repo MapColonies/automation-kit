@@ -201,7 +201,8 @@ class S3Client:
         #
         # for object_summary in bucket.objects.filter(Prefix=f"{directory_name}/"):
         #     print(object_summary.key)
-        return bucket.objects.filter(Prefix=f"{directory_name}/")
+        results = [name.key for name in bucket.objects.filter(Prefix=f"{directory_name}/")]
+        return results
 
 def check_s3_valid(end_point, access_key, secret_key, bucket_name=None):
     """
