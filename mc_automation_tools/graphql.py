@@ -6,12 +6,13 @@ from mc_automation_tools import common
 # from graphqlclient import GraphQLClient
 
 from python_graphql_client import GraphqlClient
-
+import logging
+_log = logging.getLogger('graphql_handler')
 
 class GqlClient:
     """This class wrapping and provide access into gql server"""
     def __init__(self, host):
-        self.client = GraphqlClient(endpoint=host)
+        self.client = GraphqlClient(endpoint=host, verify=config.CERT_DIR_GQL)
 
     def execute_free_query(self, query=None, variables=None):
         """
@@ -22,12 +23,15 @@ class GqlClient:
 
     def get_jobs_tasks(self, query=config.JOB_TASK_QUERY, variables=None):
         retry = 3
+        failure_resaon = ""
         for i in range(retry):
             try:
-                res = self.client.execute(query=query, variables=variables)
+                res = self.client.execute(query=query, variables=variables, verify=config.CERT_DIR_GQL)
                 return res
             except Exception as e:
+                _log.debug(f'failure on connection with error [{str(e)}]')
+                failure_resaon = str(e)
                 continue
             time.sleep(3)
-        raise Exception(f'Failed access to gql after {i+1} / {retry} tries')
+        raise Exception(f'Failed access to gql after {i+1} / {retry} tries, with message: [{failure_resaon}]')
         # return res
