@@ -12,7 +12,10 @@ _log = logging.getLogger('graphql_handler')
 class GqlClient:
     """This class wrapping and provide access into gql server"""
     def __init__(self, host):
-        self.client = GraphqlClient(endpoint=host, verify=config.CERT_DIR_GQL)
+        if config.CERT_DIR_GQL:
+            self.client = GraphqlClient(endpoint=host, verify=config.CERT_DIR_GQL)
+        else:
+            self.client = GraphqlClient(endpoint=host)
 
     def execute_free_query(self, query=None, variables=None):
         """
@@ -26,7 +29,10 @@ class GqlClient:
         failure_resaon = ""
         for i in range(retry):
             try:
-                res = self.client.execute(query=query, variables=variables, verify=config.CERT_DIR_GQL)
+                if config.CERT_DIR_GQL:
+                    res = self.client.execute(query=query, variables=variables, verify=config.CERT_DIR_GQL)
+                else:
+                    res = self.client.execute(query=query, variables=variables)
                 return res
             except Exception as e:
                 _log.debug(f'failure on connection with error [{str(e)}]')
