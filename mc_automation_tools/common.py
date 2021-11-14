@@ -12,6 +12,7 @@ import xmltodict
 import uuid
 import requests
 import datetime
+from mc_automation_tools.configuration import config
 
 _log = logging.getLogger('automation_tools.common')
 
@@ -209,7 +210,10 @@ def get_xml_as_dict(url):
     This method request xml and return response as dict [ordered]
     """
     try:
-        response = requests.get(url)
+        if config.CERT_DIR:
+            response = requests.get(url, verify=config.CERT_DIR, timeout=120)
+        else:
+            response = requests.get(url)
         dict_data = xmltodict.parse(response.content)
         return dict_data
 
