@@ -92,9 +92,9 @@ def send_put_request(url, data):
     common.url_validator(url)
     try:
         if not config.CERT_DIR:
-            resp = requests.get(url, data=data)
+            resp = requests.put(url, data=data, timeout=120)
         else:
-            resp = requests.get(url, data=data, verify=config.CERT_DIR, timeout=120)
+            resp = requests.put(url, data=data, verify=config.CERT_DIR, timeout=120)
         _log.debug("response code: %d", resp.status_code)
         _log.debug("response message: %s", resp.content)
 
