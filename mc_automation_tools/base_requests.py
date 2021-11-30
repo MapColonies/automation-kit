@@ -84,7 +84,7 @@ def send_get_request2(url, params=None):
 
 def send_get_request(url, data):
     """
-    send http get request by providing get full url
+    send http put request by providing put url + body
     :param url: url to get request
     :param data: json with key-value of query params
     :return: http response data as request library returns
