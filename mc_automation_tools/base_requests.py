@@ -82,7 +82,7 @@ def send_get_request2(url, params=None):
     return resp
 
 
-def send_get_request(url, data):
+def send_put_request(url, data):
     """
     send http put request by providing put url + body
     :param url: url to get request
