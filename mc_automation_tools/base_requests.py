@@ -80,3 +80,28 @@ def send_get_request2(url, params=None):
                                                    "message: %s" % str(e))
 
     return resp
+
+
+def send_get_request(url, data):
+    """
+    send http get request by providing get full url
+    :param url: url to get request
+    :param data: json with key-value of query params
+    :return: http response data as request library returns
+    """
+    common.url_validator(url)
+    try:
+        if not config.CERT_DIR:
+            resp = requests.get(url, data=data)
+        else:
+            resp = requests.get(url, data=data, verify=config.CERT_DIR, timeout=120)
+        _log.debug("response code: %d", resp.status_code)
+        _log.debug("response message: %s", resp.content)
+
+    except Exception as e:
+        _log.error('failed get response with error: %s', str(e))
+        raise requests.exceptions.RequestException("failed on getting response data from get response with error "
+                                                   "message: %s" % str(e))
+
+    return resp
+
