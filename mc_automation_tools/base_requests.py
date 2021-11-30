@@ -82,19 +82,23 @@ def send_get_request2(url, params=None):
     return resp
 
 
-def send_put_request(url, data):
+def send_put_request(url, data, header=None):
     """
     send http put request by providing put url + body
     :param url: url to get request
     :param data: json with key-value of query params
+    :param header: header of request
     :return: http response data as request library returns
     """
     common.url_validator(url)
     try:
+        if not header:
+            header = {'content-type': 'application/json', "accept": "*/*"}
+
         if not config.CERT_DIR:
-            resp = requests.put(url, data=data, timeout=120)
+            resp = requests.put(url, data=data, headers=header, timeout=120)
         else:
-            resp = requests.put(url, data=data, verify=config.CERT_DIR, timeout=120)
+            resp = requests.put(url, data=data, headers=header, verify=config.CERT_DIR, timeout=120)
         _log.debug("response code: %d", resp.status_code)
         _log.debug("response message: %s", resp.content)
 
