@@ -55,10 +55,10 @@ class JobsTasksManager:
         :return: full jobs status + tasks by params
         """
         url = common.combine_url(self.__end_point_url, self.__jobs_api)
-        if isinstance(params, dict):
-            params = json.dumps(params)
-        elif not isinstance(params, str):
-            raise ValueError(f'params is not on valid params -> json or dict')
+        # if isinstance(params, dict):
+        #     params = json.dumps(params)
+        # elif not isinstance(params, str):
+        #     raise ValueError(f'params is not on valid params -> json or dict')
         resp = base_requests.send_get_request(url, params)
         if resp.status_code != config.ResponseCode.Ok.value:
             raise Exception(
