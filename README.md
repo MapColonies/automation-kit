@@ -8,3 +8,5 @@
 3. Common - common utils for string manipulations, urls, storage, os, and data-types convertor
 4. Jira - integration sub-package for connecting pytest results with jira's dashboard.
 5. PostGres support wrapping module that provide useful class and function working with pg
+6. MC-ingestion mutual API's wrappers:
+    * job manager api wrapper
