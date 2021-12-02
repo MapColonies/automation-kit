@@ -1,6 +1,7 @@
 import enum
 from mc_automation_tools import common
 
+
 class ResponseCode(enum.Enum):
     """
     Types of server responses
