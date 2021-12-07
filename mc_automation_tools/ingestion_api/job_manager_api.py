@@ -199,7 +199,7 @@ class JobsTasksManager:
         :return: list[dict] -> list of dicts representing all tasks under provided job
         """
         url = common.combine_url(self.__end_point_url, self.__jobs_api, uuid, self.__tasks)
-        resp = base_requests.send_get_request2(url)
+        resp = base_requests.send_get_request(url)
         if resp.status_code != config.ResponseCode.Ok.value:
             raise Exception(
                 f'[tasks]:failed get tasks of job, return with error:[{resp.status_code}]:error msg:[{str(resp.content)}]')
