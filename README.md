@@ -1,3 +1,8 @@
+[![Python 3.6](https://img.shields.io/badge/python-3.6-green.svg)](https://www.python.org/downloads/release/python-360/)
+<img alt="GitHub release (latest by date including pre-releases)" src="https://img.shields.io/github/v/release/MapColonies/automation-kit">
+![GitHub](https://img.shields.io/github/license/MapColonies/automation-kit)
+<img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/MapColonies/automation-kit">
+
 # automation-kit
 
 ### This pytonic package include useful sub-packages and implementation for variant manipulation of automation infrastructure.
