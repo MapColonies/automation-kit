@@ -9,7 +9,7 @@ class PVCHandler:
     __createTestDir = 'createTestDir'
     __updateShape = 'updateShape'
     __changeMaxZoom = 'changeMaxZoom'
-    __validatePath = 'validatePath '
+    __validatePath = 'validatePath'
     __deleteTestDir = 'deleteTestDir'
     __createWatchDir = 'createWatchDir'
     __updateWatchShape = 'updateWatchShape'
