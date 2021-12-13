@@ -463,7 +463,7 @@ class JobsTasksManager:
         job = resp
 
         while running:
-            time.sleep(config.internal_timeout // 4)
+            time.sleep(internal_timeout // 4)
             job_id = job['id']
             job = self.get_job_by_id(job_id)  # now getting job info by unique job id
 
