@@ -16,6 +16,18 @@ class ResponseCode(enum.Enum):
     ServerError = 500  # problem with error
 
 
+class JobStatus(enum.Enum):
+    """
+    Types of job statuses
+    """
+    Completed = 'Completed'
+    Failed = 'Failed'
+    InProgress = 'In-Progress'
+    Pending = 'Pending'
+
+
+
+
 job_ingestion_type = 'Discrete-Tiling'
 S3_DOWNLOAD_EXPIRATION_TIME = common.get_environment_variable("S3_DOWNLOAD_EXPIRED_TIME", 3600)
 CERT_DIR = common.get_environment_variable('CERT_DIR', None)
