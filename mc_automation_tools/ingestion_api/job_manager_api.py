@@ -2,8 +2,11 @@
 This module is the wrapper for job manager api according provided swagger
 """
 import json
+import time
+import logging
 from mc_automation_tools.configuration import config
 from mc_automation_tools import base_requests, common
+_log = logging.getLogger('mc_automation_tools.ingestion_api.job_manager_api')
 
 
 class JobsTasksManager:
@@ -367,7 +370,7 @@ class JobsTasksManager:
                               "attempts": 0
                            }
         """
-        url = common.combine_url(self.__end_point_url, self.__tasks,task_type, self.__start_pending)
+        url = common.combine_url(self.__end_point_url, self.__tasks, task_type, self.__start_pending)
         resp = base_requests.send_post_request(url)
         if resp.status_code != config.ResponseCode.Ok.value:
             raise Exception(
@@ -430,3 +433,56 @@ class JobsTasksManager:
                 f'[update_expired_status]:failed update, return with error:[{resp.status_code}]:error msg:[{str(resp.text)}]')
 
         return str(resp.text)
+
+    # ========================================== Shared components =====================================================
+    def follow_running_job_manager(self, product_id, product_version, product_type='Discrete-Tiling', timeout=300, internal_timeout=80):
+        """This method will follow running ingestion task and return results on finish"""
+
+        t_end = time.time() + timeout
+        running = True
+        find_job_params = {
+            'resourceId': product_id,
+            'version': product_version,
+            'shouldReturnTasks': str(True).lower(),  # example to make it compatible to query params
+            'type': product_type
+        }
+        resp = self.find_jobs_by_criteria(find_job_params)[0]
+        if not resp:
+            raise Exception(f'Job for {product_id}:{product_version} not found')
+        _log.info(f'Found job with details:\n'
+                  f'id: [{resp["id"]}]\n'
+                  f'resourceId (product id): [{resp["resourceId"]}]\n'
+                  f'version: [{resp["version"]}]\n'
+                  f'parameters: [{resp["parameters"]}]\n'
+                  f'status: [{resp["status"]}]\n'
+                  f'percentage: [{resp["percentage"]}]\n'
+                  f'reason: [{resp["reason"]}]\n'
+                  f'isCleaned: [{resp["isCleaned"]}]\n'
+                  f'priority: [{resp["priority"]}]\n'
+                  f'Num of tasks related to job: [{len(resp["tasks"])}]')
+        job = resp
+
+        while running:
+            time.sleep(config.internal_timeout // 4)
+            job_id = job['id']
+            job = self.get_job_by_id(job_id)  # now getting job info by unique job id
+
+            job_id = job['id']
+            status = job['status']
+            reason = job['reason']
+            tasks = job['tasks']
+
+            completed_task = sum(1 for task in tasks if task['status'] == config.JobStatus.Completed.name)
+            _log.info(f'\nIngestion status of job for resource: {product_id}:{product_version} is [{status}]\n'
+                      f'finished tasks for current job: {completed_task} / {len(tasks)}')
+
+            if status == config.JobStatus.Completed.name:
+                return {'status': status, 'message': " ".join(['OK', reason]), 'job_id': job_id}
+            elif status == config.JobStatus.Failed.name:
+                return {'status': status, 'message': " ".join(['Failed: ', reason]), 'job_id': job_id}
+
+            current_time = time.time()
+
+            if t_end < current_time:
+                return {'status': status, 'message': " ".join(['Failed: ', 'got timeout while following job running']),
+                        'job_id': job_id}

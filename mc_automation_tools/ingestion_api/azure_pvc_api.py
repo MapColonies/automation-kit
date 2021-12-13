@@ -50,7 +50,6 @@ class PVCHandler:
         """
         This function will send get request and update tfw files to resolution that fit to required zoom level
         :param required_zoom: integer represent zoom level according mapping on config file zoom -> resolution
-        :param watch: if watch true -> will go to watch configured directory on pvc
         """
         params = {'max_zoom': config.zoom_level_dict[required_zoom]}
         api = self.__changeWatchMaxZoom if self.__watch else self.__changeMaxZoom

@@ -14,7 +14,9 @@
 4. Jira - integration sub-package for connecting pytest results with jira's dashboard.
 5. PostGres support wrapping module that provide useful class and function working with pg
 6. MC-ingestion mutual API's wrappers:
-    * job manager api wrapper
+    * job manager api wrapper:
+        * Multiple API access
+        * Automation utilities -> Job Follower[Example]
     * overseer api wrapper
     * agent api wrapper
     * azure pvc handler -> automation internal service to mock NFS
