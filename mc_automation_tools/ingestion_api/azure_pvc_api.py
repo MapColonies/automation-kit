@@ -15,6 +15,8 @@ class PVCHandler:
     __updateWatchShape = 'updateWatchShape'
     __changeWatchMaxZoom = 'changeWatchMaxZoom'
     __validateWatchPath = 'validateWatchPath'
+    __deleteFromFolder = 'deleteFromFolder'
+    __createMockFile = 'createMockFile'
 
     def __init__(self, endpoint_url, watch=True):
         self.__end_point_url = endpoint_url
@@ -32,7 +34,10 @@ class PVCHandler:
             'createWatchDir': self.__createWatchDir,
             'updateWatchShape': self.__updateWatchShape,
             'changeWatchMaxZoom': self.__changeWatchMaxZoom,
-            'validateWatchPath': self.__validateWatchPath
+            'validateWatchPath': self.__validateWatchPath,
+            'deleteFromFolder': self.__deleteFromFolder,
+            'createMockFile': self.__createMockFile
+
         }
         return params
 
@@ -84,4 +89,22 @@ class PVCHandler:
         """
         url = common.combine_url(self.__end_point_url, self.__deleteTestDir)
         resp = base_requests.send_get_request(url)
+        return resp
+
+    def delete_file_from_folder(self, folder_name, file_name):
+        """
+        This function will delete ingestion test dir
+        """
+        param = {'folder': folder_name, 'file': file_name}
+        url = common.combine_url(self.__end_point_url, self.__deleteFromFolder, )
+        resp = base_requests.send_get_request(url, param)
+        return resp
+
+    def create_mock_file(self, folder_name, file_name):
+        """
+        This function will create file in folder
+        """
+        param = {'folder': folder_name, 'file': file_name}
+        url = common.combine_url(self.__end_point_url, self.__createMockFile, )
+        resp = base_requests.send_get_request(url, param)
         return resp
