@@ -7,7 +7,7 @@ import json
 import requests
 from mc_automation_tools import common
 from mc_automation_tools.configuration import config
-_log = logging.getLogger('automation_tools.requests')
+_log = logging.getLogger('mc_automation_tools.requests')
 
 
 def send_post_request(url, body={}, header=None):

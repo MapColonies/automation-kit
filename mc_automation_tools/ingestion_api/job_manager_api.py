@@ -6,6 +6,7 @@ import time
 import logging
 from mc_automation_tools.configuration import config
 from mc_automation_tools import base_requests, common
+
 _log = logging.getLogger('mc_automation_tools.ingestion_api.job_manager_api')
 
 
@@ -435,7 +436,8 @@ class JobsTasksManager:
         return str(resp.text)
 
     # ========================================== Shared components =====================================================
-    def follow_running_job_manager(self, product_id, product_version, product_type='Discrete-Tiling', timeout=300, internal_timeout=80):
+    def follow_running_job_manager(self, product_id, product_version, product_type='Discrete-Tiling', timeout=300,
+                                   internal_timeout=80):
         """This method will follow running ingestion task and return results on finish"""
 
         t_end = time.time() + timeout
