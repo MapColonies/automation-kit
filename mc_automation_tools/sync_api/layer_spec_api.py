@@ -11,7 +11,7 @@ from mc_automation_tools import base_requests, common
 _log = logging.getLogger('mc_automation_tools.sync_api.layer_spec_api')
 
 
-class JobsTasksManager:
+class LayerSpec:
     __tilesCount = 'tilesCount'
 
     def __init__(self, end_point_url):
