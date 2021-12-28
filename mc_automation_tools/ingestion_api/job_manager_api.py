@@ -475,7 +475,7 @@ class JobsTasksManager:
             tasks = job['tasks']
 
             completed_task = sum(1 for task in tasks if task['status'] == config.JobStatus.Completed.name)
-            _log.info(f'\nIngestion status of job for resource: {product_id}:{product_version} is [{status}]\n'
+            _log.info(f'\nStatus of job for resource: {product_id}:{product_version} is [{status}]\n'
                       f'finished tasks for current job: {completed_task} / {len(tasks)}')
 
             if status == config.JobStatus.Completed.name:
