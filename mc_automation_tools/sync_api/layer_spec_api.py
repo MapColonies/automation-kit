@@ -28,11 +28,11 @@ class LayerSpec:
     def get_tiles_count(self, layer_id, target):
         """
         This method will query and return tile count by layer id
-        :param layer_id: str -> resourceId [product id]
+        :param layer_id: str -> resourceId [product id] + layer version [product version] -> "productId-productVersion"
         :param target: str -> target of destination of synchronization
         :return: dict -> {status_code, {"tilesCount": int}}
         """
-        url = common.combine_url(self.__end_point_url, layer_id, target)
+        url = common.combine_url(self.__end_point_url, self.__tilesCount, layer_id, target)
         resp = base_requests.send_get_request(url)
         status_code, content_dict = common.response_parser(resp)
         if status_code != config.ResponseCode.Ok.value:
@@ -48,12 +48,12 @@ class LayerSpec:
             {
               "tilesBatchCount": 0
             }
-        :param layer_id: str -> resourceId [product id]
+        :param layer_id: str -> resourceId [product id] + layer version [product version] -> "productId-productVersion"
         :param target: str -> target of destination of synchronization
-        :param target: str -> target of destination of synchronization
+        :param update_value: str -> target of destination of synchronization
         :return: dict -> {"message": "string"}
         """
-        url = common.combine_url(self.__end_point_url, layer_id, target)
+        url = common.combine_url(self.__end_point_url, self.__tilesCount, layer_id, target)
         if isinstance(update_value, dict):
             body = json.dumps(update_value)
         elif isinstance(update_value, str):
