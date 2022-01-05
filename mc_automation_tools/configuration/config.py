@@ -26,6 +26,13 @@ class JobStatus(enum.Enum):
     Pending = 'Pending'
 
 
+class MapProtocolType(enum.Enum):
+    """
+    Types of orthophoto access protocol statuses
+    """
+    WMS = 'WMS'
+    WMTS = 'WMTS'
+
 
 
 job_ingestion_type = 'Discrete-Tiling'

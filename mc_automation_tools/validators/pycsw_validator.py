@@ -1,5 +1,5 @@
 """
-This module provide data validation utils testing data on mapproxy data
+This module provide data validation utils testing data on pycsw [catalog] data
 """
 import xmltodict
 import logging
@@ -67,7 +67,7 @@ class PycswHandler:
             # source_json_metadata_dic = {'metadata': source_json_metadata}
         # todo -> validate outher data is valid and provided as dict
         source_json_metadata_dic = source_json_metadata
-        validation_flag, err_dict = validate_pycsw_with_shape_json(pycsw_records, source_json_metadata_dic)
+        validation_flag, err_dict = validate_pycsw_with_shape_json(pycsw_records, source_json_metadata_dic, sync_flag=True)
 
         res_dict['validation'] = validation_flag
         res_dict['reason'] = err_dict
