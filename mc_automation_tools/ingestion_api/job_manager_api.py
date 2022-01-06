@@ -345,11 +345,12 @@ class JobsTasksManager:
         """
         url = common.combine_url(self.__end_point_url, self.__tasks, self.__find)
         resp = base_requests.send_post_request(url, params)
-        if resp.status_code != config.ResponseCode.Ok.value:
+        s_code, content = common.response_parser(resp)
+        if s_code != config.ResponseCode.Ok.value:
             raise Exception(
-                f'[find_tasks]:failed find tasks , return with error:[{resp.status_code}]:error msg:[{str(resp.text)}]')
+                f'[find_tasks]:failed find tasks , return with error:[{s_code}]:error msg:[{content})]')
 
-        return json.loads(resp.content)
+        return content
 
     # ===========================================tasks management api's=================================================
 
