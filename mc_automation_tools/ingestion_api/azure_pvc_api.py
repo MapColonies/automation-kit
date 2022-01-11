@@ -83,12 +83,13 @@ class PVCHandler:
         resp = base_requests.send_get_request(url)
         return resp
 
-    def delete_ingestion_directory(self):
+    def delete_ingestion_directory(self, folder_name):
         """
         This function will delete ingestion test dir
         """
+        param = {'folder': folder_name}
         url = common.combine_url(self.__end_point_url, self.__deleteTestDir)
-        resp = base_requests.send_get_request(url)
+        resp = base_requests.send_get_request(url, param)
         return resp
 
     def delete_file_from_folder(self, folder_name, file_name):
