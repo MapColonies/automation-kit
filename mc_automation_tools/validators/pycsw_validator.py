@@ -62,7 +62,7 @@ class PycswHandler:
                                               params=get_records_params)
 
         if not pycsw_records:
-            return {'validation': False, 'reason': f'Records of [{product_id}] not found'}
+            return {"results": {'validation': False, 'reason': f'Records of [{product_id}] not found'}, "pycsw_record": None, "links":None}
 
         # todo -> mabye delete this section \ refactor to more generic
         links = {}
@@ -80,7 +80,7 @@ class PycswHandler:
 
         res_dict['validation'] = validation_flag
         res_dict['reason'] = err_dict
-        return res_dict, pycsw_records, links
+        return {'results': res_dict, 'pycsw_record': pycsw_records, 'links': links}
 
     def get_record_by_id(self, product_id, product_version, params):
         """

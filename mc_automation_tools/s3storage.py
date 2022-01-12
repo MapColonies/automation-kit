@@ -191,7 +191,7 @@ class S3Client:
         # def get_download_urls(self):
         # return self._download_urls
 
-    def list_folder_content(self,bucket_name,directory_name):
+    def list_folder_content(self, bucket_name, directory_name):
         """
 
         :return:
