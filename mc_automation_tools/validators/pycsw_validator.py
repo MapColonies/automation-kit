@@ -35,6 +35,15 @@ class PycswHandler:
             _log.warning("get_raster_record_params not provided for query raster records it may crash on those "
                          "functionalities")
 
+    def set_get_params(self, params):
+        """
+        This will replace param for query on pycsw
+        """
+        if params:
+            self.__get_raster_record_params = params
+        else:
+            raise ValueError('Should provide params')
+
     def validate_pycsw(self, source_json_metadata, product_id=None, product_version=None):
         """
         compare original metadata (represented as dict) with catalog data (pycsw)

@@ -480,12 +480,12 @@ class JobsTasksManager:
                       f'finished tasks for current job: {completed_task} / {len(tasks)}')
 
             if status == config.JobStatus.Completed.name:
-                return {'status': status, 'message': " ".join(['OK', reason]), 'job_id': job_id}
+                return {'status': status, 'message': " ".join(['OK', reason]), 'job_id': job_id, 'tasks': tasks}
             elif status == config.JobStatus.Failed.name:
-                return {'status': status, 'message': " ".join(['Failed: ', reason]), 'job_id': job_id}
+                return {'status': status, 'message': " ".join(['Failed: ', reason]), 'job_id': job_id, 'tasks': tasks}
 
             current_time = time.time()
 
             if t_end < current_time:
                 return {'status': status, 'message': " ".join(['Failed: ', 'got timeout while following job running']),
-                        'job_id': job_id}
+                        'job_id': job_id, 'tasks': tasks}
