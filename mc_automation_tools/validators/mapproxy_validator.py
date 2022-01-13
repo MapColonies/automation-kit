@@ -8,6 +8,7 @@ from mc_automation_tools.configuration import config
 from mc_automation_tools.models import structs
 from mc_automation_tools import common, base_requests
 from mc_automation_tools import s3storage
+
 _log = logging.getLogger('mc_automation_tools.validators.mapproxy_validator')
 
 
@@ -16,7 +17,7 @@ class MapproxyHandler:
     This class provide validation utility against data on mapproxy
     """
 
-    def __init__(self, entrypoint_url, tiles_storage_provide, grid_origin="ul", s3_credential=None, nfs_tiles_url = None):
+    def __init__(self, entrypoint_url, tiles_storage_provide, grid_origin="ul", s3_credential=None, nfs_tiles_url=None):
         self.__entrypoint_url = entrypoint_url
         self.__tiles_storage_provide = tiles_storage_provide
         self.__grid_origin = grid_origin.lower()
@@ -53,15 +54,25 @@ class MapproxyHandler:
 
             # check that wmts include the new layer on capabilities
             wmts_capabilities = common.get_xml_as_dict(links[group][structs.MapProtocolType.WMTS.value])
+            wmts_tile_properties = [layer for layer in wmts_capabilities['Capabilities']['Contents']['Layer'] if
+                                    layer_name in layer['ows:Identifier']][0]
+
             links[group]['is_valid'][structs.MapProtocolType.WMTS.value] = \
                 self.validate_wmts(links[group][structs.MapProtocolType.WMTS.value], layer_name)
 
-            links[group]['is_valid'][structs.MapProtocolType.WMTS_LAYER.value] = self.validate_wmts_layer(links[group][structs.MapProtocolType.WMTS.value], layer_name)
-            #####3 change to WMTS_URL value
+            links[group]['is_valid'][structs.MapProtocolType.WMTS_LAYER.value] = self.validate_wmts_layer(
+                wmts_template_url=links[group][structs.MapProtocolType.WMTS_LAYER.value],
+                wmts_tile_matrix_set=wmts_tile_properties,
+                layer_name=layer_name)
 
-
-            wmts_layer_properties = [layer for layer in wmts_capabilities['Capabilities']['Contents']['Layer'] if
-                                     layer_name in layer['ows:Identifier']]
+        validation = True
+        for group_name, value in links.items():
+            if not all(val for key, val in value['is_valid'].items()):
+                validation = False
+                break
+        _log.info(f'validation of discrete layers on mapproxy status:\n'
+                  f'{links}')
+        return {'validation': validation, 'reason': links}
 
     @classmethod
     def validate_wms(cls, wms_capabilities_url, layer_name):
@@ -75,7 +86,8 @@ class MapproxyHandler:
         except Exception as e:
             _log.info(f'Failed wms validation with error: [{str(e)}]')
             raise RuntimeError(f'Failed wms validation with error: [{str(e)}]')
-        exists = layer_name in [layer['Name'] for layer in wms_capabilities['WMS_Capabilities']['Capability']['Layer']['Layer']]
+        exists = layer_name in [layer['Name'] for layer in
+                                wms_capabilities['WMS_Capabilities']['Capability']['Layer']['Layer']]
         return exists
 
     @classmethod
@@ -95,21 +107,23 @@ class MapproxyHandler:
                                 wmts_capabilities['Capabilities']['Contents']['Layer']]
         return exists
 
-    def validate_wmts_layer(self, wmts_capabilities_url, layer_name):
+    def validate_wmts_layer(self, wmts_template_url, wmts_tile_matrix_set, layer_name):
         """
         This method will provide if wmts layer protocol provide access to tiles
-        :param wmts_capabilities_url: url for all wmts capabilities on server (mapproxy)
-        :param layer_name: orthophoto layer id
+        :param wmts_template_url: url struct for get tiles with wmts protocol on mapproxy
+        :param wmts_tile_matrix_set: properties of matrix set
+        :param layer_name: orthophoto layer id -> "<product_id>-<product_version>"
         """
         splited_layer_name = layer_name.split('-')
         product_id = splited_layer_name[0]
         product_version = splited_layer_name[1]
+        if product_version == 'Orthophoto' or product_version == 'OrthophotoHistory':
+            object_key = product_id
+        else:
+            # object_key = "/".join([product_id, product_version])
+            object_key = os.path.join(product_id, product_version)
 
         try:
-            wmts_capabilities = common.get_xml_as_dict(wmts_capabilities_url)
-            wmts_layer_properties = [layer for layer in wmts_capabilities['Capabilities']['Contents']['Layer'] if
-                                     layer_name in layer['ows:Identifier']]
-
 
             # check access to random tile by wmts_layer url
             if self.__tiles_storage_provide.lower() == "s3":
@@ -119,10 +133,10 @@ class MapproxyHandler:
                 bucket_name = self.__s3_credential.get_bucket_name()
                 s3_conn = s3storage.S3Client(entrypoint, access_key, secret_key)
 
-                list_of_tiles = s3_conn.list_folder_content(bucket_name, "/".join([product_id, product_version]))
+                list_of_tiles = s3_conn.list_folder_content(bucket_name, object_key)
 
             elif self.__tiles_storage_provide.lower() == "fs" or self.__tiles_storage_provide.lower() == "nfs":
-                path = os.path.join(self.__nfs_tiles_url, product_id, product_version)
+                path = os.path.join(self.__nfs_tiles_url, object_key)
                 list_of_tiles = []
                 # r=root, d=directories, f = files
                 for r, d, f in os.walk(path):
@@ -141,19 +155,18 @@ class MapproxyHandler:
             if self.__grid_origin == "ul":
                 zxy[2] = str(2 ** int(zxy[0]) - 1 - int(zxy[2]))
 
-            tile_matrix_set = wmts_layer_properties[0]['TileMatrixSetLink']['TileMatrixSet']
-            wmts_layers_url = wmts_layer_properties[0]['ResourceURL']['@template']
-            wmts_layers_url = wmts_layers_url.format(TileMatrixSet=tile_matrix_set, TileMatrix=zxy[0], TileCol=zxy[1],
-                                                     TileRow=zxy[2])  # formatted url for testing
-            resp = base_requests.send_get_request(wmts_layers_url)
+            tile_matrix_set = wmts_tile_matrix_set['TileMatrixSetLink']['TileMatrixSet']
+            wmts_template_url = wmts_template_url.format(TileMatrixSet=tile_matrix_set,
+                                                         TileMatrix=zxy[0],
+                                                         TileCol=zxy[1],
+                                                         TileRow=zxy[2])  # formatted url for testing
+            resp = base_requests.send_get_request(wmts_template_url)
             url_valid = resp.status_code == structs.ResponseCode.Ok.value
         except Exception as e:
             _log.info(f'Failed wmts validation with error: [{str(e)}]')
             return False
 
-
         return url_valid
-
 
     @classmethod
     def extract_from_pycsw(cls, pycsw_records):
@@ -170,9 +183,6 @@ class MapproxyHandler:
         results = dict.fromkeys(list(links.keys()), dict())
         for link_group in list(links.keys()):
             results[link_group] = {k: v for k, v in links[link_group].items()}
-
-
-
 
         return results
 
