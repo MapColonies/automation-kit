@@ -20,7 +20,7 @@ class MapproxyHandler:
     def __init__(self, entrypoint_url, tiles_storage_provide, grid_origin="ul", s3_credential=None, nfs_tiles_url=None):
         self.__entrypoint_url = entrypoint_url
         self.__tiles_storage_provide = tiles_storage_provide
-        self.__grid_origin = grid_origin.lower()
+        self.__grid_origin = grid_origin
         self.__s3_credential = s3_credential
         self.__nfs_tiles_url = nfs_tiles_url
 
