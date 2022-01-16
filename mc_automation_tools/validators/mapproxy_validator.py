@@ -54,8 +54,12 @@ class MapproxyHandler:
 
             # check that wmts include the new layer on capabilities
             wmts_capabilities = common.get_xml_as_dict(links[group][structs.MapProtocolType.WMTS.value])
-            wmts_tile_properties = [layer for layer in wmts_capabilities['Capabilities']['Contents']['Layer'] if
-                                    layer_name in layer['ows:Identifier']][0]
+            list_of_wmts_layers = [layer for layer in wmts_capabilities['Capabilities']['Contents']['Layer'] if layer_name in layer['ows:Identifier']]
+            if not list_of_wmts_layers:
+                raise Exception(f'WMTS capabilities not found for layer: [{layer_name}]')
+            wmts_tile_properties = list_of_wmts_layers[0]
+            # wmts_tile_properties = [layer for layer in wmts_capabilities['Capabilities']['Contents']['Layer'] if
+            #                         layer_name in layer['ows:Identifier']][0]
 
             links[group]['is_valid'][structs.MapProtocolType.WMTS.value] = \
                 self.validate_wmts(links[group][structs.MapProtocolType.WMTS.value], layer_name)
