@@ -25,6 +25,31 @@ class S3Provider:
         return self.s3_bucket_name
 
 
+class StorageProvider:
+    """This class provide gathered access to core's storage credential """
+
+    def __init__(self,
+                 source_data_provider=None,
+                 tiles_provider=None,
+                 s3_credential=None,
+                 pvc_handler_url=None):
+        self.__source_data_provider = source_data_provider
+        self.__tiles_provider = tiles_provider
+        self.s3_credential = s3_credential
+        self.__pvc_handler_url = pvc_handler_url
+
+    def get_source_data_provider(self):
+        return self.__source_data_provider
+
+    def get_tiles_provider(self):
+        return self.__tiles_provider
+
+    def get_s3_credential(self):
+        return self.s3_credential
+
+    def get_pvc_url(self):
+        return self.__pvc_handler_url
+
 
 class ResponseCode(enum.Enum):
     """
@@ -57,6 +82,7 @@ class MapProtocolType(enum.Enum):
     WMS = 'WMS'
     WMTS = 'WMTS'
     WMTS_LAYER = 'WMTS_LAYER'
+
 
 class tile_storage_provider(enum.Enum):
     S3 = "S3"
