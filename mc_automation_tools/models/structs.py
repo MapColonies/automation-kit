@@ -51,6 +51,32 @@ class StorageProvider:
         return self.__pvc_handler_url
 
 
+class FSProvider:
+    """This class provide relevant variables for fs mode """
+
+    def __init__(self,
+                 is_fs=False,
+                 root_dir_path=None,
+                 src_relative_path=None,
+                 dst_relative_path=None):
+        self.__is_fs = is_fs
+        self.__root_dir_path = root_dir_path
+        self.__src_relative_path = src_relative_path
+        self.__dst_relative_path = dst_relative_path
+
+    def is_fs(self):
+        return self.__is_fs
+
+    def get_root_dir_path(self):
+        return self.__root_dir_path
+
+    def get_src_relative_path(self):
+        return self.__src_relative_path
+
+    def get_dst_relative_path(self):
+        return self.__dst_relative_path
+
+
 class ResponseCode(enum.Enum):
     """
     Types of server responses
