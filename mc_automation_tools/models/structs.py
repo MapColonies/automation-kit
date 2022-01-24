@@ -71,7 +71,7 @@ class FSProvider:
         return self.__root_dir_path
 
     def get_src_relative_path(self):
-        return self.__src_relative_path
+        return self.__src_relative_pathgit
 
     def get_dst_relative_path(self):
         return self.__dst_relative_path
