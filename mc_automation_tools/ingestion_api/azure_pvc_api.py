@@ -17,6 +17,7 @@ class PVCHandler:
     __validateWatchPath = 'validateWatchPath'
     __deleteFromFolder = 'deleteFromFolder'
     __createMockFile = 'createMockFile'
+    __copyFile = 'copyFile'
 
     def __init__(self, endpoint_url, watch=True):
         self.__end_point_url = endpoint_url
@@ -36,8 +37,8 @@ class PVCHandler:
             'changeWatchMaxZoom': self.__changeWatchMaxZoom,
             'validateWatchPath': self.__validateWatchPath,
             'deleteFromFolder': self.__deleteFromFolder,
-            'createMockFile': self.__createMockFile
-
+            'createMockFile': self.__createMockFile,
+            'copyFile': self.__copyFile
         }
         return params
 
@@ -107,5 +108,14 @@ class PVCHandler:
         """
         param = {'folder': folder_name, 'file': file_name}
         url = common.combine_url(self.__end_point_url, self.__createMockFile, )
+        resp = base_requests.send_get_request(url, param)
+        return resp
+
+    def copy_file_to_dest(self, src_folder, dest_folder):
+        """
+        This function will create file in folder
+        """
+        param = {'src': src_folder, 'dest': dest_folder}
+        url = common.combine_url(self.__end_point_url, self.__copyFile, )
         resp = base_requests.send_get_request(url, param)
         return resp
