@@ -146,7 +146,7 @@ class Overseer:
                 f'[create_layer]:failed on send create layer to overseer, return with error:[{resp.status_code}], '
                 f'error msg:[{str(resp.content)}]')
 
-        return str(resp.text)
+        return str(resp.text), resp.request.body
 
     # ===============================================tasks api's========================================================
 
