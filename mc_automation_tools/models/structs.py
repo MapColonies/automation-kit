@@ -31,12 +31,14 @@ class StorageProvider:
     def __init__(self,
                  source_data_provider=None,
                  tiles_provider=None,
+                 fs_provider=None,
                  s3_credential=None,
                  pvc_handler_url=None):
         self.__source_data_provider = source_data_provider
         self.__tiles_provider = tiles_provider
         self.s3_credential = s3_credential
         self.__pvc_handler_url = pvc_handler_url
+        self.__fs_provider = fs_provider
 
     def get_source_data_provider(self):
         return self.__source_data_provider
@@ -49,6 +51,9 @@ class StorageProvider:
 
     def get_pvc_url(self):
         return self.__pvc_handler_url
+
+    def fs_provider(self):
+        return self.__fs_provider
 
 
 class FSProvider:
