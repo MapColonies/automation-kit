@@ -12,18 +12,20 @@ class PGClass:
     This class create and provide connection to postgress db host
     """
 
-    def __init__(self, host, database, user, password):
+    def __init__(self, host, database, user, password, port=5432):
         self.host = host
         self.database = database
         self.user = user
         self.password = password
+        self.port = port
 
         try:
             self.conn = psycopg2.connect(
                 host=self.host,
                 database=self.database,
                 user=self.user,
-                password=self.password)
+                password=self.password,
+                port=self.port)
         except Exception as e:
             raise ConnectionError(f'Error on connection to DB with error: {str(e)}')
 
