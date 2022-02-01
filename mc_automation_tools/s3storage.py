@@ -40,7 +40,7 @@ class S3Client:
             _log.error('Failed on sign into s3 with error %s', str(e))
             raise e
 
-        _log.info('New s3 client object was created with end point: %s', self._endpoint_url)
+        _log.debug('New s3 client object was created with end point: %s', self._endpoint_url)
 
     def get_client(self):
         """return initialized s3 client object"""
