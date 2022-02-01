@@ -63,11 +63,13 @@ class FSProvider:
                  is_fs=False,
                  root_dir_path=None,
                  src_relative_path=None,
-                 dst_relative_path=None):
+                 dst_relative_path=None,
+                 tiles_dir=None):
         self.__is_fs = is_fs
         self.__root_dir_path = root_dir_path
         self.__src_relative_path = src_relative_path
         self.__dst_relative_path = dst_relative_path
+        self.__tiles_dir = tiles_dir
 
     def get_is_fs(self):
         return self.__is_fs
@@ -80,6 +82,9 @@ class FSProvider:
 
     def get_dst_relative_path(self):
         return self.__dst_relative_path
+
+    def get_tiles_dir(self):
+        return self.__tiles_dir
 
 
 class ResponseCode(enum.Enum):
