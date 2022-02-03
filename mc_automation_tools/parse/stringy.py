@@ -30,6 +30,6 @@ def pad_with_minus(string, length=100):
     return string_padding(string, length, '-')
 
 
-# todo -> implement with padding on just one side - > not center
+# todo -> implement with padding on just one side - > not center str.ljust()
 
 
