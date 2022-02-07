@@ -44,7 +44,7 @@ class PycswHandler:
         else:
             raise ValueError('Should provide params')
 
-    def validate_pycsw(self, source_json_metadata, product_id=None, product_version=None):
+    def validate_pycsw(self, source_json_metadata, product_id=None, product_version=None, sync_flag=False):
         """
         compare original metadata (represented as dict) with catalog data (pycsw)
         :param source_json_metadata: original meta data dictionary -> {'metadata': {<json data>}}
@@ -62,7 +62,8 @@ class PycswHandler:
                                               params=get_records_params)
 
         if not pycsw_records:
-            return {"results": {'validation': False, 'reason': f'Records of [{product_id}] not found'}, "pycsw_record": None, "links":None}
+            return {"results": {'validation': False, 'reason': f'Records of [{product_id}] not found'},
+                    "pycsw_record": None, "links": None}
 
         # todo -> mabye delete this section \ refactor to more generic
         links = {}
@@ -76,7 +77,7 @@ class PycswHandler:
             # source_json_metadata_dic = {'metadata': source_json_metadata}
         # todo -> validate outher data is valid and provided as dict
         source_json_metadata_dic = source_json_metadata
-        validation_flag, err_dict = validate_pycsw_with_shape_json(pycsw_records, source_json_metadata_dic, sync_flag=True)
+        validation_flag, err_dict = validate_pycsw_with_shape_json(pycsw_records, source_json_metadata_dic, sync_flag)
 
         res_dict['validation'] = validation_flag
         res_dict['reason'] = err_dict
