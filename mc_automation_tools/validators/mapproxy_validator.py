@@ -3,6 +3,7 @@ This module provide data validation utils testing data on mapproxy data
 """
 import logging
 import os
+import json
 
 from mc_automation_tools.configuration import config
 from mc_automation_tools.models import structs
@@ -81,7 +82,7 @@ class MapproxyHandler:
                 validation = False
                 break
         _log.info(f'validation of discrete layers on mapproxy status:\n'
-                  f'{links}')
+                  f'{json.dumps(links, indent=4)}')
         return {'validation': validation, 'reason': links}
 
     @classmethod
@@ -197,6 +198,7 @@ class MapproxyHandler:
         return results
 
 
+# todo -> validate if actually in use
 def validate_new_discrete(pycsw_records, product_id, product_version):
     """
     This method will validate access and data on mapproxy
