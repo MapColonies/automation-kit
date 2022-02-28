@@ -10,7 +10,31 @@ from mc_automation_tools.configuration import config
 _log = logging.getLogger('mc_automation_tools.requests')
 
 
-def send_post_request(url, body={}, header=None):
+def send_post_binary_request(url, data={}, header={'content-type': 'application/json', "accept": "*/*"}, params=None):
+    """
+        This method will execute similar post http request execution but,
+        dedicated send request with binary data (images and etc.)
+        send http post request by providing post full url + body ,
+        header is optional, by default:content-type': 'application/json', "accept": "*/*
+    """
+
+    try:
+        if not config.CERT_DIR:
+            resp = requests.post(url=url, data=data, headers=header, params=params)
+        else:
+            resp = requests.post(url=url, data=data, headers=header, verify=config.CERT_DIR, params=params)
+        _log.debug("response code: %d", resp.status_code)
+        _log.debug("response message: %s", resp.text)
+
+    except Exception as e:
+        _log.error('failed get response with error: %s and error of content:', str(e))
+        raise requests.exceptions.RequestException('failed on getting response data from get response with error '
+                                                   'message: %s' % str(e))
+
+    return resp
+
+
+def send_post_request(url, body={}, header=None, params=None):
     """ send http post request by providing post full url + body , header is optional, by default:content-type': 'application/json',
     "accept": "*/* """
     common.url_validator(url)
@@ -18,9 +42,9 @@ def send_post_request(url, body={}, header=None):
         header = {'content-type': 'application/json', "accept": "*/*"}
     try:
         if not config.CERT_DIR:
-            resp = requests.post(url=url, data=json.dumps(body), headers=header)
+            resp = requests.post(url=url, data=json.dumps(body), headers=header, params=params)
         else:
-            resp = requests.post(url=url, data=json.dumps(body), headers=header, verify=config.CERT_DIR)
+            resp = requests.post(url=url, data=json.dumps(body), headers=header, verify=config.CERT_DIR, params=params)
         _log.debug("response code: %d", resp.status_code)
         _log.debug("response message: %s", resp.text)
 
