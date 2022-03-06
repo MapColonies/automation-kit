@@ -1,10 +1,10 @@
 """
-This module adapt and provide useful access to postgressSQL DB
+This module adapt and provide useful access to postgresSQL DB
 """
+#todo -> remove before merge to master
 import logging
 import psycopg2
-import json
-_log = logging.getLogger('automation_tools.postgress')
+_log = logging.getLogger('mc_automation_tools.postgres')
 
 
 class PGClass:
