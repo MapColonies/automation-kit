@@ -10,7 +10,7 @@ _log = logging.getLogger('mc_automation_tools.postgres')
 
 class PGClass:
     """
-    This class create and provide connection to postgress db host
+    This class create and provide connection to postgres db host
     """
 
     def __init__(self, host, database, user, password, scheme, port=5432):
