@@ -1,23 +1,25 @@
 """
-This module adapt and provide useful access to postgressSQL DB
+This module adapt and provide useful access to postgresSQL DB
 """
+#todo -> remove before merge to master
 import logging
 import psycopg2
-import json
-_log = logging.getLogger('automation_tools.postgress')
+
+_log = logging.getLogger('mc_automation_tools.postgres')
 
 
 class PGClass:
     """
-    This class create and provide connection to postgress db host
+    This class create and provide connection to postgres db host
     """
 
-    def __init__(self, host, database, user, password, port=5432):
+    def __init__(self, host, database, user, password, scheme, port=5432):
         self.host = host
         self.database = database
         self.user = user
         self.password = password
         self.port = port
+        self.scheme = scheme
 
         try:
             self.conn = psycopg2.connect(
@@ -42,31 +44,11 @@ class PGClass:
             _log.error(str(e))
             raise e
 
-    # def create_table(self, table_name, primary_key, columns):
-    #     """
-    #     This method add new table according to provided table_name and
-    #     :param table_name: name of new table to create - <str>
-    #     :param primary_key: name of PRIMARY_KEY - list of tuples - [(primary_key_str, data_type)]
-    #     :param columns: name of other columns + foreign - list of tuples tuple - [(column name_str, data_type str, NULL - True\False, is foreign)]
-    #     """
-    #     prefix = f"CREATE TABLE {table_name}"
-    #
-    #     primary_keys_list = []
-    #     for key in primary_key:
-    #         primary_keys_content = ""
-    #         for var in key:
-    #             primary_keys_content + " " + var
-    #         primary_keys_content + 'PRIMARY KEY'
-    #
-    #     for key in columns:
-    #
-    #     pass
-
     def get_column_by_name(self, table_name, column_name):
         """
         This method return list of column data by providing column name
         """
-        command = f"SELECT {column_name} FROM {table_name}"
+        command = f"""SELECT {column_name} FROM "{self.scheme}"."{table_name}";"""
         try:
             cur = self.conn.cursor()
             cur.execute(command)
@@ -79,7 +61,7 @@ class PGClass:
 
     def update_value_by_pk(self, pk, pk_value, table_name, column, value):
         """This method will update column by provided primary key and table name """
-        command = f"""UPDATE {table_name} SET "{column}"='{value}' WHERE {pk} = '{pk_value}'"""
+        command = f"""UPDATE "{self.scheme}"."{table_name}" SET "{column}"='{value}' WHERE {pk} = '{pk_value}';"""
         try:
             cur = self.conn.cursor()
             cur.execute(command)
@@ -95,7 +77,7 @@ class PGClass:
         """
         This method query for geometry object and return as geojson format readable
         """
-        command = f"""select st_AsGeoJSON({column}) from {table_name} where {pk}='{pk_value}'"""
+        command = f"""select st_AsGeoJSON({column}) from "{self.scheme}"."{table_name}" where {pk}='{pk_value}';"""
         try:
             cur = self.conn.cursor()
             cur.execute(command)
@@ -111,7 +93,7 @@ class PGClass:
         """
         Delete entire row by providing key and value [primary key]
         """
-        command = f"""delete from "{table_name}" where "{pk}"='{pk_value}'"""
+        command = f"""delete from "{self.scheme}"."{table_name}" where "{pk}"='{pk_value}';"""
         try:
             cur = self.conn.cursor()
             cur.execute(command)
@@ -127,7 +109,7 @@ class PGClass:
         """
         This method will drop table by providing name of table to drop
         """
-        command = f"""DROP TABLE {table_name} CASCADE"""
+        command = f"""DROP TABLE "{self.scheme}"."{table_name}" CASCADE;"""
         cur = self.conn.cursor()
         cur.execute(command)
         self.conn.commit()
@@ -137,7 +119,7 @@ class PGClass:
         """
         This method will empty and remove all rows on table by providing name of table to drop
         """
-        command = f"""TRUNCATE TABLE {table_name} """
+        command = f"""TRUNCATE TABLE "{self.scheme}"."{table_name}";"""
         cur = self.conn.cursor()
         cur.execute(command)
         self.conn.commit()
@@ -154,7 +136,7 @@ class PGClass:
         for idx, i in enumerate(pk_values):
             pk_values[idx] = f"'{i}'"
         args_str = ','.join(pk_values)
-        command = f"""select {column} from {table_name} where {pk} in ({args_str})"""
+        command = f"""select "{column}" from "{self.scheme}"."{table_name}" where {pk} in ({args_str})"""
         try:
             cur = self.conn.cursor()
             cur.execute(command)
@@ -175,7 +157,7 @@ class PGClass:
             update_query = update_query + f""" (cast('{v[0]}' as {type_pk}),cast('{v[1]}' as {type_col})),"""
             # update_query = update_query + f""" ('{v[0]}' ,'{v[1]}'),"""
         update_query = update_query[:-1]+")"
-        update_query = update_query + f""" update {table_name} set {column} = vals.j from vals where {table_name}.{pk} = vals.i;"""
+        update_query = update_query + f""" update "{self.scheme}"."{table_name}" as my_table set "{column}" = vals.j from vals where my_table.{pk} = vals.i;"""
         # update = f"""update {table_name} set {column} = vals.j from vals where {table_name}.{pk} = vals.i;"""
 
         # insert_query = f"""insert into {table_name} ({pk}, {column}) values {records_list_template}"""
@@ -186,14 +168,13 @@ class PGClass:
         self.conn.commit()
         cur.close()
 
-
     def get_rows_by_order(self, table_name, order_key=None, order_desc=False, return_as_dict=False):
         """
-        This method will query for entire table rows order by spesific parameter
+        This method will query for entire table rows order by specific parameter
         """
 
         asc_desc = 'asc' if not order_desc else 'desc'
-        command = f"""select * from "{table_name}" order by "{order_key}" {asc_desc}"""
+        command = f"""select * from "{self.scheme}"."{table_name}" order by "{order_key}" {asc_desc}"""
 
         try:
             cur = self.conn.cursor()
@@ -219,14 +200,14 @@ class PGClass:
             _log.error(str(e))
             raise e
 
-
-    def get_rows_by_keys(self, table_name, keys_values,order_key=None,order_desc=False,return_as_dict=False):
+    def get_rows_by_keys(self, table_name, keys_values, order_key=None, order_desc=False, return_as_dict=False):
         """
         This method returns rows that suitable on several keys-values
         :param table_name: table name
         :param keys_values: list of dict with columns keys values
         :param order_key: str of key for ordering query - not mendatory
         :param order_desc: order method - not mendatory as default ASC
+        :param return_as_dict: bool -> if return the result as dict or list
         """
 
         key_value_stat = []
@@ -236,10 +217,10 @@ class PGClass:
         key_value_stat = """ and """.join(key_value_stat)
 
         if not order_key:
-            command = f"""select * from "{table_name}" where ({key_value_stat})"""
+            command = f"""select * from "{self.scheme}"."{table_name}" where ({key_value_stat})"""
         else:
             asc_desc = 'asc' if not order_desc else 'desc'
-            command = f"""select * from "{table_name}" where ({key_value_stat}) order by "{order_key}" {asc_desc}"""
+            command = f"""select * from "{self.scheme}"."{table_name}" where ({key_value_stat}) order by "{order_key}" {asc_desc}"""
         try:
             cur = self.conn.cursor()
             cur.execute(command)
@@ -267,3 +248,23 @@ class PGClass:
         # return res
 
 
+
+    # def create_table(self, table_name, primary_key, columns):
+    #     """
+    #     This method add new table according to provided table_name and
+    #     :param table_name: name of new table to create - <str>
+    #     :param primary_key: name of PRIMARY_KEY - list of tuples - [(primary_key_str, data_type)]
+    #     :param columns: name of other columns + foreign - list of tuples tuple - [(column name_str, data_type str, NULL - True\False, is foreign)]
+    #     """
+    #     prefix = f"CREATE TABLE {table_name}"
+    #
+    #     primary_keys_list = []
+    #     for key in primary_key:
+    #         primary_keys_content = ""
+    #         for var in key:
+    #             primary_keys_content + " " + var
+    #         primary_keys_content + 'PRIMARY KEY'
+    #
+    #     for key in columns:
+    #
+    #     pass
