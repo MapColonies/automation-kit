@@ -1,7 +1,6 @@
 """
 This module adapt and provide useful access to postgresSQL DB
 """
-#todo -> remove before merge to master
 import logging
 import psycopg2
 
