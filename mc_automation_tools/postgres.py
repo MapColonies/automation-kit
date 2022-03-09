@@ -96,9 +96,10 @@ class PGClass:
         try:
             cur = self.conn.cursor()
             cur.execute(command)
-
             self.conn.commit()
+            resp = cur.statusmessage
             cur.close()
+            return resp
 
         except Exception as e:
             _log.error(str(e))
