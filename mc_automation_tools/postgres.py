@@ -135,7 +135,7 @@ class PGClass:
         for idx, i in enumerate(pk_values):
             pk_values[idx] = f"'{i}'"
         args_str = ','.join(pk_values)
-        command = f"""select "{column}" from "{self.scheme}"."{table_name}" where {pk} in ({args_str})"""
+        command = f"""select "{column}" from "{self.scheme}"."{table_name}" where "{pk}" in ({args_str})"""
         try:
             cur = self.conn.cursor()
             cur.execute(command)
