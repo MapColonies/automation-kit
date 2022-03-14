@@ -125,6 +125,52 @@ class PGClass:
         self.conn.commit()
         cur.close()
 
+    def get_by_json_key(self, table_name, pk, canonic_keys, value):
+        """
+        This method send query with canonic search over multiple number of pk arguments and return rows include value:
+            Sample: the canonic =====> root_key->some_sub_key->optional_sub_key......-><value expected>
+        :param table_name: table name
+        :param pk: primary key
+        :param canonic_keys: list of arguments represent dict canonic order of keys
+        :param value: column name to get
+        """
+
+        search_str = '->'.join(["'"+c+"'" for c in canonic_keys])
+        command = f"""select * from "{self.scheme}"."{table_name}" where "{pk}"->{search_str}->'{value}' is not NULL;"""
+        try:
+            cur = self.conn.cursor()
+            cur.execute(command)
+            res = cur.fetchall()
+            cur.close()
+        except Exception as e:
+            _log.error(str(e))
+            raise e
+        return res
+
+    def delete_by_json_key(self, table_name, pk, canonic_keys, value):
+        """
+        This method send query with canonic search over multiple number of pk arguments and return rows include value:
+            Sample: the canonic =====> root_key->some_sub_key->optional_sub_key......-><value expected>
+        :param table_name: table name
+        :param pk: primary key
+        :param canonic_keys: list of arguments represent dict canonic order of keys
+        :param value: column name to get
+        """
+
+        search_str = '->'.join(["'"+c+"'" for c in canonic_keys])
+        command = f"""delete from "{self.scheme}"."{table_name}" where "{pk}"->{search_str}->'{value}' is not NULL;"""
+        try:
+            cur = self.conn.cursor()
+            cur.execute(command)
+            self.conn.commit()
+            resp = cur.statusmessage
+            cur.close()
+            return resp
+        except Exception as e:
+            _log.error(str(e))
+            raise e
+
+
     def get_by_n_argument(self, table_name, pk, pk_values, column):
         """
         This method send query with multiple number of pk arguments
