@@ -8,10 +8,8 @@ PyJWT
 paramiko
 shapely
 pandas
-geopandas
 ogr
 python-graphql-client
 graphqlclient
 xmltodict
-mc-discrete-kit>=0.0.21
 psycopg2-binary==2.8.6
