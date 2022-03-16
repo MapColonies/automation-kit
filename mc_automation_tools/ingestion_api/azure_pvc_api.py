@@ -45,7 +45,7 @@ class PVCHandler:
     def create_new_ingestion_dir_no_delete(self):
         """
         This method will send http get request to pvc server and create new directory of ingested source data
-        :return: new directory on pv
+        :return: new directory on pv without delete the old one.
         """
         param = {'delete': "yes"}
         api = self.__createWatchDir if self.__watch else self.__createTestDir
