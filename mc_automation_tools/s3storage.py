@@ -157,7 +157,8 @@ class S3Client:
             delete_keys = {'Objects': []}
             delete_keys['Objects'] = [{'Key': k} for k in [obj['Key'] for obj in objects_to_delete.get('Contents', [])]]
 
-            self._resource.meta.client.delete_objects(Bucket=bucket_name, Delete=delete_keys)
+            resp = self._resource.meta.client.delete_objects(Bucket=bucket_name, Delete=delete_keys)
+            return resp
 
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == "404":
@@ -190,19 +191,15 @@ class S3Client:
             raise e2
 
         return True
-        # def get_download_urls(self):
-        # return self._download_urls
 
     def list_folder_content(self, bucket_name, directory_name):
         """
-
-        :return:
+        This method will list all exists items on provided object
+        :param bucket_name: str -> bucket of object
+        :param directory_name: object key -> path to object
+        :return: list -> list of files included in object key
         """
         bucket = self._resource.Bucket(bucket_name)
-        #
-        #
-        # for object_summary in bucket.objects.filter(Prefix=f"{directory_name}/"):
-        #     print(object_summary.key)
         results = [name.key for name in bucket.objects.filter(Prefix=f"{directory_name}/")]
         return results
 
