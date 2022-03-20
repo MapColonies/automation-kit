@@ -14,6 +14,7 @@ class S3Client:
     """
     This class implements s3 functionality
     """
+
     # pylint: disable=fixme
     def __init__(self, endpoint_url, aws_access_key_id, aws_secret_access_key):
         if 'minio' in endpoint_url:  # todo - refactor as validation check
@@ -49,7 +50,6 @@ class S3Client:
     def get_resource(self):
         """return initialized s3 resource object"""
         return self._resource
-
 
     def create_new_bucket(self, bucket_name):
         """
@@ -98,7 +98,8 @@ class S3Client:
             _log.info('Success on uploading %s into s3', os.path.basename(full_path))
         except Exception as e:
             _log.error('Failed uploading file [%s] into s3 with error: %s', object_key, str(e))
-            raise Exception('Failed uploading file [%s] into s3 with error: %s' % (full_path, str(e)))  # pylint: disable=raise-missing-from
+            raise Exception('Failed uploading file [%s] into s3 with error: %s' % (
+            full_path, str(e)))  # pylint: disable=raise-missing-from
 
     def download_from_s3(self, bucket, object_key, destination):
         """
@@ -113,10 +114,12 @@ class S3Client:
         Add new key (object_key) into download_urls dictionary
         """
         self._download_urls[":".join([bucket, object_key])] = self._client.generate_presigned_url('get_object',
-                                                                                                  Params={'Bucket': bucket,
-                                                                                                          'Key': object_key},
+                                                                                                  Params={
+                                                                                                      'Bucket': bucket,
+                                                                                                      'Key': object_key},
                                                                                                   ExpiresIn=config.S3_DOWNLOAD_EXPIRATION_TIME)
-    def is_bucket_exists(self,bucket_name):
+
+    def is_bucket_exists(self, bucket_name):
         """
         This method check specific bucket on s3 connection if exists
         :param bucket_name: name of specific bucket
@@ -137,18 +140,17 @@ class S3Client:
                 _log.error(f"{bucket_name} bucket Does Not Exist!")
                 return False, error_code, 'bucket Does Not Exist'
 
-    def _is_object_exists(self, bucket_name, path):
+    def is_object_exists(self, bucket_name, path):
         bucket = self._resource.Bucket(bucket_name)
         for object_summary in bucket.objects.filter(Prefix=path):
             return True
         return False
 
-
-    def delete_folder(self,bucket_name, object_key):
+    def delete_folder(self, bucket_name, object_key):
         """
         Will delete entire folder on provided bucket
         """
-        if not self._is_object_exists(bucket_name, object_key):
+        if not self.is_object_exists(bucket_name, object_key):
             return True
         try:
             objects_to_delete = self._resource.meta.client.list_objects(Bucket=bucket_name, Prefix=object_key)
@@ -204,6 +206,7 @@ class S3Client:
         results = [name.key for name in bucket.objects.filter(Prefix=f"{directory_name}/")]
         return results
 
+
 def check_s3_valid(end_point, access_key, secret_key, bucket_name=None):
     """
     This method validate correct connection to s3
@@ -239,8 +242,6 @@ def check_s3_valid(end_point, access_key, secret_key, bucket_name=None):
         _log.error(f'unable connect to current url: [{end_point}]\nwith error of [{str(e)}]')
         resp_dict['error_msg'] = str(e)
 
-
     return resp_dict
-
 
     # s3_conn = s3storage.S3Client(end_point, access_key, secret_key)
