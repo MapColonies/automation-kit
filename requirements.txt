@@ -13,3 +13,5 @@ python-graphql-client
 graphqlclient
 xmltodict
 psycopg2-binary==2.8.6
+geopandas
+mc-discrete-kit>=0.0.21
