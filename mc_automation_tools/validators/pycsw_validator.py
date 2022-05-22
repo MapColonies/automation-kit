@@ -44,7 +44,7 @@ class PycswHandler:
         else:
             raise ValueError('Should provide params')
 
-    def validate_pycsw(self, source_json_metadata, product_id=None, product_version=None, sync_flag=False):
+    def validate_pycsw(self, source_json_metadata, product_id=None, product_version=None, sync_flag=False, header=None):
         """
         compare original metadata (represented as dict) with catalog data (pycsw)
         :param source_json_metadata: original meta data dictionary -> {'metadata': {<json data>}}
@@ -59,7 +59,7 @@ class PycswHandler:
 
         pycsw_records = self.get_record_by_id(product_id,
                                               product_version,
-                                              params=get_records_params)
+                                              params=get_records_params, header=header)
 
         if not pycsw_records:
             return {"results": {'validation': False, 'reason': f'Records of [{product_id}] not found'},
@@ -83,7 +83,7 @@ class PycswHandler:
         res_dict['reason'] = err_dict
         return {'results': res_dict, 'pycsw_record': pycsw_records, 'links': links}
 
-    def get_record_by_id(self, product_id, product_version, params):
+    def get_record_by_id(self, product_id, product_version, params, header=None):
         """
            This method find record by semi unique ID -> product_name & product_id
            :param product_version: discrete version
@@ -102,12 +102,12 @@ class PycswHandler:
                 }
            :return: list of records [orthophoto and orthophotoHistory]
        """
-        res = self.get_raster_records(params)
+        res = self.get_raster_records(params, header)
         records_list = [record for record in res if
                         (record['mc:productId'] == product_id and record['mc:productVersion'] == product_version)]
         return records_list
 
-    def get_raster_records(self, params):
+    def get_raster_records(self, params, header=None):
         """
         This function will return all records of raster's data
         :param params: request parameters for GetRecords API request with json result ->
@@ -124,12 +124,14 @@ class PycswHandler:
                 }
         :return: Dict -> list of records - json format
         """
+        if header is None:
+            header = {'content-type': 'application/json'}
         records_list = []
         next_record = -1
         host = self.__pycsw_endpoint_url
         try:
             while next_record:
-                resp = base_requests.send_get_request(host, params)
+                resp = base_requests.send_get_request(host, params, header)
                 s_code = resp.status_code
                 if s_code != config.ResponseCode.Ok.value:
                     raise Exception(
