@@ -7,6 +7,7 @@ import json
 import requests
 from mc_automation_tools import common
 from mc_automation_tools.configuration import config
+
 _log = logging.getLogger('mc_automation_tools.requests')
 
 
@@ -56,19 +57,22 @@ def send_post_request(url, body={}, header=None, params=None):
     return resp
 
 
-def send_get_request(url, params=None):
+def send_get_request(url, params=None, header=None):
     """
     send http get request by providing get full url
     :param url: url to get request
     :param params: json with key-value of query params
+    :headers param: if exists you can use the headers
     :return: http response data as request library returns
     """
     common.url_validator(url)
+    if header is None:
+        header = {'content-type': 'application/json'}
     try:
         if not config.CERT_DIR:
-            resp = requests.get(url, params)
+            resp = requests.get(url, params, headers=header)
         else:
-            resp = requests.get(url, params, verify=config.CERT_DIR, timeout=120)
+            resp = requests.get(url, params, verify=config.CERT_DIR, timeout=120, headers=header)
         _log.debug("response code: %d", resp.status_code)
         _log.debug("response message: %s", resp.content)
 
@@ -131,4 +135,3 @@ def send_delete_request(url, params=None):
                                                    "message: %s" % str(e))
 
     return resp
-
