@@ -204,16 +204,16 @@ def zipdir(path, ziph):
                                        os.path.join(path, '..')))
 
 
-def get_xml_as_dict(url):
+def get_xml_as_dict(url, header):
     """
     This method request xml and return response as dict [ordered]
     """
     try:
         cert_dir = get_environment_variable('CERT_DIR', False)
         if cert_dir:
-            response = requests.get(url, verify=cert_dir, timeout=120)
+            response = requests.get(url, verify=cert_dir, timeout=120, headers=header)
         else:
-            response = requests.get(url)
+            response = requests.get(url, headers=header)
         dict_data = xmltodict.parse(response.content)
         return dict_data
 
