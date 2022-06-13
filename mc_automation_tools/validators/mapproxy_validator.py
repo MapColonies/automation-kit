@@ -25,7 +25,7 @@ class MapproxyHandler:
         self.__s3_credential = s3_credential
         self.__nfs_tiles_url = nfs_tiles_url
 
-    def validate_layer_from_pycsw(self, pycsw_records, product_id, product_version):
+    def validate_layer_from_pycsw(self, pycsw_records, product_id, product_version, header=None):
         """
         This method will extract the url's of mapproxy and validate access to new layer
         :param pycsw_records: list[dict] -> records per given layer
@@ -51,12 +51,12 @@ class MapproxyHandler:
 
             # check that wms include the new layer on capabilities
             links[group]['is_valid'][structs.MapProtocolType.WMS.value] = \
-                self.validate_wms(links[group][structs.MapProtocolType.WMS.value], layer_name)
+                self.validate_wms(links[group][structs.MapProtocolType.WMS.value], layer_name, header=header)
             if not links[group]['is_valid'][structs.MapProtocolType.WMS.value]:
                 _log.error(f'WMS layer not found on capabilities, layer name: [{layer_name}]')
 
             links[group]['is_valid'][structs.MapProtocolType.WMTS.value] = \
-                self.validate_wmts(links[group][structs.MapProtocolType.WMTS.value], layer_name)
+                self.validate_wmts(links[group][structs.MapProtocolType.WMTS.value], layer_name, header=header)
 
             if not links[group]['is_valid'][structs.MapProtocolType.WMTS.value]:
                 _log.error(f'WMTS layer not found on capabilities, layer name: [{layer_name}]')
@@ -86,14 +86,14 @@ class MapproxyHandler:
         return {'validation': validation, 'reason': links}
 
     @classmethod
-    def validate_wms(cls, wms_capabilities_url, layer_name):
+    def validate_wms(cls, wms_capabilities_url, layer_name, header):
         """
         This method will provide if layer exists in wms capabilities or not
         :param wms_capabilities_url: url for all wms capabilities on server (mapproxy)
         :param layer_name: orthophoto layer id
         """
         try:
-            wms_capabilities = common.get_xml_as_dict(wms_capabilities_url)
+            wms_capabilities = common.get_xml_as_dict(wms_capabilities_url, header)
         except Exception as e:
             _log.info(f'Failed wms validation with error: [{str(e)}]')
             raise RuntimeError(f'Failed wms validation with error: [{str(e)}]')
@@ -102,14 +102,14 @@ class MapproxyHandler:
         return exists
 
     @classmethod
-    def validate_wmts(cls, wmts_capabilities_url, layer_name):
+    def validate_wmts(cls, wmts_capabilities_url, layer_name, header):
         """
         This method will provide if layer exists in wmts capabilities or not
         :param wmts_capabilities_url: url for all wmts capabilities on server (mapproxy)
         :param layer_name: orthophoto layer id
         """
         try:
-            wmts_capabilities = common.get_xml_as_dict(wmts_capabilities_url)
+            wmts_capabilities = common.get_xml_as_dict(wmts_capabilities_url, header)
         except Exception as e:
             _log.info(f'Failed wmts validation with error: [{str(e)}]')
             return False
