@@ -30,6 +30,128 @@ class PGClass:
         except Exception as e:
             raise ConnectionError(f'Error on connection to DB with error: {str(e)}')
 
+
+    def get_SqlHelper(self):# Method to send to inner Class SqlHelper Connection parameters.
+        return  self.SqlHelper(self.conn, self.scheme,self.database)
+
+    # Read me SqlHelper class can execute Sql statement in 2 ways
+    # 1.0v by Shay Perpinial
+
+    # Create a PGClass instance
+    # get_SqlHelper method from PGClass return instance of SqlHelper cLass with the parameters.
+    # From the object can produce with build_query , sending the parameters by
+    #       - "results_to_get" = Select  can get None as a default and get all the parameters as *
+    #       - "table_name" = From The table that get the data from as format  "SchemasName".TableName
+    #       - "search_data" = The data that we compare to column name .
+    #       - "data" = Columns  name from the table that we compare to the Data
+    #       - "operator" =  there is 4  operator available  = ('compare', 'start', 'end', 'have')  send a string of the
+    #                       desire operation start/ end  "Like" operation for start with and ending string .
+
+    #    execute_one() return a list of item as a tuple, if only 1 item return will be tuple inside list
+    #    execute_all() return a list of item as a tuple, if only 1 item return will be tuple inside list
+
+    #    unit_dict()   method instead of  execute_one/all  return a dictionary key/value of the return statement
+
+    #    execute_sql_statement get a String query return the results  without get a parameters. o
+    #    ptional send after the query, true for get as a dictionary
+
+    class SqlHelper:
+        def __init__(self, conn,scheme,database):
+            self.conn = conn
+            self.scheme =  scheme
+            self.database = database
+            query = str()
+
+        def build_query(self, results_to_get, table_name, search_data, data, operator, as_dict=False):
+            self.table = table_name
+            condition = []
+            value = results_to_get if results_to_get is not None else '*'
+            self.query = f"""SELECT {value} FROM {table_name} WHERE """
+            condition.append(search_data)
+            condition.append(data)
+            self.query += self.__operation(operator, condition)
+            print(self.query)
+
+        def __compare(self, var_condition):
+            condition = f"{var_condition[0]} = '{var_condition[1]}'"
+            return condition
+
+        def __start_with(self, var_condition):
+            statement = f""""{var_condition[0]}" LIKE '{var_condition[1]}%'"""
+            return statement
+
+        def __end_with(self, var_condition):
+            statement = f"{var_condition[0]} LIKE '%{var_condition[1]}'"
+            return statement
+
+        def __have_in_query(self, var_condition):
+            statement = f"{var_condition[0]} LIKE '%{var_condition[1]}%' "
+            return statement
+
+        def execute_one(self): # return a list of item as a tuple, if only 1 item return will be tuple inside list
+            try:
+                cur = self.conn.cursor()
+                cur.execute(self.query)
+            except Exception as e:
+                logging.exception(e)
+                return cur.fetchone()
+            finally:
+                cur.close()
+
+
+        def execute_all(self): # return a list of item as a tuple, if only 1 item return will be tuple inside list
+            try:
+                cur = self.conn.cursor()
+                cur.execute(self.query)
+            except Exception as e:
+                logging.exception(e)
+                return cur.fetchall()
+            finally:
+                cur.close()
+
+        # Function to decide each operator use on the statement
+        def __operation(self, op, condition):
+            operation_dict = {'compare': self.__compare(condition),
+                              'start': self.__start_with(condition),
+                              'end': self.__end_with(condition),
+                              'have': self.__have_in_query(condition)
+                              }
+            return operation_dict[op]
+
+        def order_by_desc(self, variable):  # default
+            self.query += f" ORDER BY {variable} DESC"
+
+        def order_by_asc(self, variable):
+            self.query += f" ORDER BY {variable} ASC"
+
+        def unit_dict(self):
+            res = self._list_of_column()
+            query_list = self.execute_one()
+            return dict(zip(res, query_list))
+
+        def _list_of_column(self):
+            cur = self.conn.cursor()
+            sql = f"""SELECT * FROM {self.table} """
+            cur.execute(sql)
+            column_names = [desc[0] for desc in cur.description]
+            print(column_names)
+            self.conn.commit()
+            #       self.conn.close()
+            return column_names
+
+        def execute_sql_statement(self, query,as_dict=False):
+            try:
+                cur = self.conn.cursor()
+                cur.execute(query)
+            except Exception as e:
+                logging.exception(e)
+            if not as_dict:
+                return cur.fetchall()
+            else:
+                res = self._list_of_column()
+                query_list=cur.fetchone()
+                return dict(zip(res, query_list))
+
     def command_execute(self, commands):
         try:
             cur = self.conn.cursor()
@@ -37,11 +159,34 @@ class PGClass:
             for command in commands:
                 cur.execute(command)
             cur.close()
+
+
             self.conn.commit()
 
         except (Exception, psycopg2.DatabaseError) as e:
             _log.error(str(e))
             raise e
+        #optional
+        # try:
+        #     cur = self.conn.cursor()
+        #     if isinstance(commands, list):
+        #         print("your object is a list !")
+        #         for command in commands:
+        #             cur.execute(command)
+        #         return cur.fetchall()
+        #     else:
+        #         print("your object is not a list")
+        #         cur.execute(commands)
+        #         return cur.fetchone()
+        #
+        # except (Exception, psycopg2.DatabaseError) as e:
+        #     _log.error(str(e))
+        #     raise e
+        #
+        # finally:
+        #     if self.conn:
+        #         self.conn.close()
+
 
     def get_column_by_name(self, table_name, column_name):
         """
