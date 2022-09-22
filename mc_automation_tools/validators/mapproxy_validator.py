@@ -25,7 +25,7 @@ class MapproxyHandler:
         self.__s3_credential = s3_credential
         self.__nfs_tiles_url = nfs_tiles_url
 
-    def validate_layer_from_pycsw(self, pycsw_records, product_id, product_version, header=None):
+    def validate_layer_from_pycsw(self, pycsw_records, product_id, product_version, header=None, WMS_FLAG=None):
         """
         This method will extract the url's of mapproxy and validate access to new layer
         :param pycsw_records: list[dict] -> records per given layer
@@ -50,10 +50,11 @@ class MapproxyHandler:
             links[group]['is_valid'] = {}
 
             # check that wms include the new layer on capabilities
-            links[group]['is_valid'][structs.MapProtocolType.WMS.value] = \
-                self.validate_wms(links[group][structs.MapProtocolType.WMS.value], layer_name, header=header)
-            if not links[group]['is_valid'][structs.MapProtocolType.WMS.value]:
-                _log.error(f'WMS layer not found on capabilities, layer name: [{layer_name}]')
+            if os.getenv('WMS_FLAG') is not None:
+                links[group]['is_valid'][structs.MapProtocolType.WMS.value] = \
+                    self.validate_wms(links[group][structs.MapProtocolType.WMS.value], layer_name, header=header)
+                if not links[group]['is_valid'][structs.MapProtocolType.WMS.value]:
+                    _log.error(f'WMS layer not found on capabilities, layer name: [{layer_name}]')
 
             links[group]['is_valid'][structs.MapProtocolType.WMTS.value] = \
                 self.validate_wmts(links[group][structs.MapProtocolType.WMTS.value], layer_name, header=header)
@@ -64,7 +65,7 @@ class MapproxyHandler:
 
             else:
                 # check that wmts include the new layer on capabilities
-                wmts_capabilities = common.get_xml_as_dict(links[group][structs.MapProtocolType.WMTS.value])
+                wmts_capabilities = common.get_xml_as_dict(links[group][structs.MapProtocolType.WMTS.value],header=header)
                 list_of_wmts_layers = [layer for layer in wmts_capabilities['Capabilities']['Contents']['Layer'] if
                                        layer_name in layer['ows:Identifier']]
                 if not list_of_wmts_layers:
@@ -74,7 +75,7 @@ class MapproxyHandler:
                 links[group]['is_valid'][structs.MapProtocolType.WMTS_LAYER.value] = self.validate_wmts_layer(
                     wmts_template_url=links[group][structs.MapProtocolType.WMTS_LAYER.value],
                     wmts_tile_matrix_set=wmts_tile_properties,
-                    layer_name=layer_name)
+                    layer_name=layer_name,header=header)
 
         validation = True
         for group_name, value in links.items():
@@ -118,7 +119,7 @@ class MapproxyHandler:
                                 wmts_capabilities['Capabilities']['Contents']['Layer']]
         return exists
 
-    def validate_wmts_layer(self, wmts_template_url, wmts_tile_matrix_set, layer_name):
+    def validate_wmts_layer(self, wmts_template_url, wmts_tile_matrix_set, layer_name, header):
         """
         This method will provide if wmts layer protocol provide access to tiles
         :param wmts_template_url: url struct for get tiles with wmts protocol on mapproxy
@@ -171,7 +172,7 @@ class MapproxyHandler:
                                                          TileMatrix=zxy[0],
                                                          TileCol=zxy[1],
                                                          TileRow=zxy[2])  # formatted url for testing
-            resp = base_requests.send_get_request(wmts_template_url)
+            resp = base_requests.send_get_request(wmts_template_url,header=header)
             url_valid = resp.status_code == structs.ResponseCode.Ok.value
         except Exception as e:
             _log.info(f'Failed wmts validation with error: [{str(e)}]')

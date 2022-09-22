@@ -67,12 +67,14 @@ class PycswHandler:
 
         # todo -> mabye delete this section \ refactor to more generic
         links = {}
+        # for record in pycsw_records:
+        #     links[record['mc:productType']] = {
+        #         record['mc:links'][0]['@scheme']: record['mc:links'][0]['#text'],
+        #         record['mc:links'][1]['@scheme']: record['mc:links'][1]['#text']
+        #         # ,record['mc:links'][2]['@scheme']: record['mc:links'][2]['#text']
+        #     }
         for record in pycsw_records:
-            links[record['mc:productType']] = {
-                record['mc:links'][0]['@scheme']: record['mc:links'][0]['#text'],
-                record['mc:links'][1]['@scheme']: record['mc:links'][1]['#text'],
-                record['mc:links'][2]['@scheme']: record['mc:links'][2]['#text']
-            }
+            links[record['mc:productType']] = {rec['@scheme']: rec['#text'] for rec in record['mc:links']}
 
             # source_json_metadata_dic = {'metadata': source_json_metadata}
         # todo -> validate outher data is valid and provided as dict
