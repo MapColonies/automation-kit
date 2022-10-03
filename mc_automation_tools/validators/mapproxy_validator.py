@@ -11,7 +11,6 @@ from mc_automation_tools import s3storage
 from mc_automation_tools.configuration import config
 from mc_automation_tools.models import structs
 
-
 _log = logging.getLogger("mc_automation_tools.validators.mapproxy_validator")
 
 
@@ -105,7 +104,9 @@ class MapproxyHandler:
             else:
                 # check that wmts include the new layer on capabilities
                 wmts_capabilities = common.get_xml_as_dict(
-                    links[group][structs.MapProtocolType.WMTS.value], header=header
+                    links[group][structs.MapProtocolType.WMTS.value],
+                    header=header,
+                    token=token,
                 )
                 list_of_wmts_layers = [
                     layer
