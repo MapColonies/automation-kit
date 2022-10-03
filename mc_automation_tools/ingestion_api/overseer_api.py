@@ -103,15 +103,17 @@ This module is the wrapper for overseer api according provided swagger
     }
 """
 import json
+
+from mc_automation_tools import base_requests
+from mc_automation_tools import common
 from mc_automation_tools.configuration import config
-from mc_automation_tools import base_requests, common
 
 
 class Overseer:
-    __layers = 'layers'
-    __tasks = 'tasks'
-    __completed = 'completed'
-    __toc = 'toc'
+    __layers = "layers"
+    __tasks = "tasks"
+    __completed = "completed"
+    __toc = "toc"
 
     def __init__(self, end_point_url):
         self.__end_point_url = end_point_url
@@ -119,14 +121,17 @@ class Overseer:
     @property
     def get_class_params(self):
         params = {
-            'layers': self.__layers,
-            'tasks': self.__tasks,
-            'completed': self.__completed,
-            'toc': self.__toc,
-            "API url's": {'layers': common.combine_url(self.__end_point_url, self.__layers),
-                          'tasks': common.combine_url(self.__end_point_url, '{jobId}', '{taskId}', self.__completed),
-                          'toc': common.combine_url(self.__end_point_url, self.__toc)
-                          }
+            "layers": self.__layers,
+            "tasks": self.__tasks,
+            "completed": self.__completed,
+            "toc": self.__toc,
+            "API url's": {
+                "layers": common.combine_url(self.__end_point_url, self.__layers),
+                "tasks": common.combine_url(
+                    self.__end_point_url, "{jobId}", "{taskId}", self.__completed
+                ),
+                "toc": common.combine_url(self.__end_point_url, self.__toc),
+            },
         }
         return params
 
@@ -143,8 +148,9 @@ class Overseer:
         resp = base_requests.send_post_request(url, params)
         if resp.status_code != config.ResponseCode.Ok.value:
             raise Exception(
-                f'[create_layer]:failed on send create layer to overseer, return with error:[{resp.status_code}], '
-                f'error msg:[{str(resp.content)}]')
+                f"[create_layer]:failed on send create layer to overseer, return with error:[{resp.status_code}], "
+                f"error msg:[{str(resp.content)}]"
+            )
 
         return resp.status_code, resp.request.body
 
@@ -161,9 +167,10 @@ class Overseer:
         resp = base_requests.send_post_request(url)
         if resp.status_code != config.ResponseCode.Ok.value:
             raise Exception(
-                f'[update_completion]:failed on update overseer completion [job:{job_id}-task:{task_id}]'
-                f', return with error:[{resp.status_code}], '
-                f'error msg:[{str(resp.content)}]')
+                f"[update_completion]:failed on update overseer completion [job:{job_id}-task:{task_id}]"
+                f", return with error:[{resp.status_code}], "
+                f"error msg:[{str(resp.content)}]"
+            )
 
         return str(resp.text)
 
@@ -283,8 +290,9 @@ class Overseer:
         resp = base_requests.send_post_request(url, params)
         if resp.status_code != config.ResponseCode.Ok.value:
             raise Exception(
-                f'[toc]:failed on getting toc file]'
-                f', return with error:[{resp.status_code}], '
-                f'error msg:[{str(resp.content)}]')
+                f"[toc]:failed on getting toc file]"
+                f", return with error:[{resp.status_code}], "
+                f"error msg:[{str(resp.content)}]"
+            )
 
         return json.loads(resp.content)

@@ -1,5 +1,6 @@
 """unittest module"""
-from mc_automation_tools import base_requests, common
+from mc_automation_tools import base_requests
+from mc_automation_tools import common
 
 
 def test_url_validation():
@@ -45,4 +46,3 @@ def test_response_parser():
     status_code, content = common.response_parser(mock_response)
     assert status_code
     assert content
-

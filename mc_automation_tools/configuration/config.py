@@ -1,9 +1,11 @@
 import enum
+
 from mc_automation_tools import common
 
 
 class S3Provider:
-    """This class provide s3 credential """
+    """This class provide s3 credential"""
+
     def __init__(self, entrypoint_url, access_key, secret_key, bucket_name=None):
         self.s3_entrypoint_url = entrypoint_url
         self.s3_access_key = access_key
@@ -27,6 +29,7 @@ class ResponseCode(enum.Enum):
     """
     Types of server responses
     """
+
     Ok = 200  # server return ok status
     ChangeOk = 201  # server was return ok for changing
     NoJob = 204  # No job
@@ -41,25 +44,28 @@ class JobStatus(enum.Enum):
     """
     Types of job statuses
     """
-    Completed = 'Completed'
-    Failed = 'Failed'
-    InProgress = 'In-Progress'
-    Pending = 'Pending'
+
+    Completed = "Completed"
+    Failed = "Failed"
+    InProgress = "In-Progress"
+    Pending = "Pending"
 
 
 class MapProtocolType(enum.Enum):
     """
     Types of orthophoto access protocol statuses
     """
-    WMS = 'WMS'
-    WMTS = 'WMTS'
+
+    WMS = "WMS"
+    WMTS = "WMTS"
 
 
-
-job_ingestion_type = 'Discrete-Tiling'
-S3_DOWNLOAD_EXPIRATION_TIME = common.get_environment_variable("S3_DOWNLOAD_EXPIRED_TIME", 3600)
-CERT_DIR = common.get_environment_variable('CERT_DIR', None)
-CERT_DIR_GQL = common.get_environment_variable('CERT_DIR_GQL', None)
+JOB_INGESTION_TYPE = "Discrete-Tiling"
+S3_DOWNLOAD_EXPIRATION_TIME = common.get_environment_variable(
+    "S3_DOWNLOAD_EXPIRED_TIME", 3600
+)
+CERT_DIR = common.get_environment_variable("CERT_DIR", None)
+CERT_DIR_GQL = common.get_environment_variable("CERT_DIR_GQL", None)
 
 JOB_TASK_QUERY = """
 query jobs ($params: JobsSearchParams){
@@ -77,7 +83,7 @@ query jobs ($params: JobsSearchParams){
                 id
                 status
               			}
-  						 }	
+  						 }
 										}
 """
 
@@ -105,5 +111,5 @@ zoom_level_dict = {
     19: 0.00000134110450744629,
     20: 0.000000670552253723145,
     21: 0.000000335276126861572,
-    22: 0.000000167638063430786
+    22: 0.000000167638063430786,
 }

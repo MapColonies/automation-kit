@@ -1,25 +1,24 @@
 """
 This module will wrap and provide api's functionality of layer spec api of sync services
 """
-
 import logging
-from mc_automation_tools.configuration import config
-from mc_automation_tools import base_requests, common
 
-_log = logging.getLogger('mc_automation_tools.sync_api.gw_file_receiver')
+from mc_automation_tools import base_requests
+from mc_automation_tools import common
+from mc_automation_tools.configuration import config
+
+_log = logging.getLogger("mc_automation_tools.sync_api.gw_file_receiver")
 
 
 class FileReceiver:
-    __fileReceiver = 'fileReceiver'
+    __fileReceiver = "fileReceiver"
 
     def __init__(self, end_point_url):
         self.__end_point_url = end_point_url
 
     @property
     def get_class_params(self):
-        params = {
-            'fileReceiver': self.__fileReceiver
-        }
+        params = {"fileReceiver": self.__fileReceiver}
         return params
 
     # ========================================== gw file receiver api's ================================================
@@ -34,23 +33,16 @@ class FileReceiver:
         url = common.combine_url(self.__end_point_url, self.__fileReceiver)
         header = None
         if image:
-            header = {'Content-Type': 'application/octet-stream'}
-        params = {
-            'filename': file_name
-        }
-        resp = base_requests.send_post_binary_request(url=url,
-                                                      data=raw_data,
-                                                      header=header,
-                                                      params=params)
+            header = {"Content-Type": "application/octet-stream"}
+        params = {"filename": file_name}
+        resp = base_requests.send_post_binary_request(
+            url=url, data=raw_data, header=header, params=params
+        )
 
         status_code, content_dict = common.response_parser(resp)
         if status_code != config.ResponseCode.Ok.value:
             raise Exception(
-                f'[Upload file by file receiver]:file: {file_name},\n'
-                f' return with error:[{status_code}],error msg:[{content_dict}]')
+                f"[Upload file by file receiver]:file: {file_name},\n"
+                f" return with error:[{status_code}],error msg:[{content_dict}]"
+            )
         return status_code, content_dict
-
-
-
-
-

@@ -12,7 +12,7 @@ def string_padding(string, length, symbol):
 
     return: str -> '<symbol * gaping/2> string <symbol * gaping/2>'
     """
-    new_str = string.center(len(string) + 2, ' ').center(length, symbol)
+    new_str = string.center(len(string) + 2, " ").center(length, symbol)
     return new_str
 
 
@@ -20,16 +20,14 @@ def pad_with_stars(string, length=100):
     """
     Method is wrapping string_padding method and create centric new string with stars
     """
-    return string_padding(string, length, '*')
+    return string_padding(string, length, "*")
 
 
 def pad_with_minus(string, length=100):
     """
     Method is wrapping string_padding method and create centric new string with minuses
     """
-    return string_padding(string, length, '-')
+    return string_padding(string, length, "-")
 
 
 # todo -> implement with padding on just one side - > not center str.ljust()
-
-

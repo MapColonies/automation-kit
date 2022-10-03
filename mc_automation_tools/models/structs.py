@@ -5,7 +5,8 @@ import enum
 
 
 class S3Provider:
-    """This class provide s3 credential """
+    """This class provide s3 credential"""
+
     def __init__(self, entrypoint_url, access_key, secret_key, bucket_name=None):
         self.s3_entrypoint_url = entrypoint_url
         self.s3_access_key = access_key
@@ -26,14 +27,16 @@ class S3Provider:
 
 
 class StorageProvider:
-    """This class provide gathered access to core's storage credential """
+    """This class provide gathered access to core's storage credential"""
 
-    def __init__(self,
-                 source_data_provider=None,
-                 tiles_provider=None,
-                 fs_provider=None,
-                 s3_credential=None,
-                 pvc_handler_url=None):
+    def __init__(
+        self,
+        source_data_provider=None,
+        tiles_provider=None,
+        fs_provider=None,
+        s3_credential=None,
+        pvc_handler_url=None,
+    ):
         self.__source_data_provider = source_data_provider
         self.__tiles_provider = tiles_provider
         self.s3_credential = s3_credential
@@ -57,14 +60,16 @@ class StorageProvider:
 
 
 class FSProvider:
-    """This class provide relevant variables for fs mode """
+    """This class provide relevant variables for fs mode"""
 
-    def __init__(self,
-                 is_fs=False,
-                 root_dir_path=None,
-                 src_relative_path=None,
-                 dst_relative_path=None,
-                 tiles_dir=None):
+    def __init__(
+        self,
+        is_fs=False,
+        root_dir_path=None,
+        src_relative_path=None,
+        dst_relative_path=None,
+        tiles_dir=None,
+    ):
         self.__is_fs = is_fs
         self.__root_dir_path = root_dir_path
         self.__src_relative_path = src_relative_path
@@ -91,6 +96,7 @@ class ResponseCode(enum.Enum):
     """
     Types of server responses
     """
+
     Ok = 200  # server return ok status
     ChangeOk = 201  # server was return ok for changing
     NoJob = 204  # No job
@@ -105,19 +111,21 @@ class JobStatus(enum.Enum):
     """
     Types of job statuses
     """
-    Completed = 'Completed'
-    Failed = 'Failed'
-    InProgress = 'In-Progress'
-    Pending = 'Pending'
+
+    Completed = "Completed"
+    Failed = "Failed"
+    InProgress = "In-Progress"
+    Pending = "Pending"
 
 
 class MapProtocolType(enum.Enum):
     """
     Types of orthophoto access protocol statuses
     """
-    WMS = 'WMS'
-    WMTS = 'WMTS'
-    WMTS_LAYER = 'WMTS_LAYER'
+
+    WMS = "WMS"
+    WMTS = "WMTS"
+    WMTS_LAYER = "WMTS_LAYER"
 
 
 class tile_storage_provider(enum.Enum):

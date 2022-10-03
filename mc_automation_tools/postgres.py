@@ -2,9 +2,10 @@
 This module adapt and provide useful access to postgresSQL DB
 """
 import logging
+
 import psycopg2
 
-_log = logging.getLogger('mc_automation_tools.postgres')
+_log = logging.getLogger("mc_automation_tools.postgres")
 
 
 class PGClass:
@@ -26,9 +27,10 @@ class PGClass:
                 database=self.database,
                 user=self.user,
                 password=self.password,
-                port=self.port)
+                port=self.port,
+            )
         except Exception as e:
-            raise ConnectionError(f'Error on connection to DB with error: {str(e)}')
+            raise ConnectionError(f"Error on connection to DB with error: {str(e)}")
 
     def command_execute(self, commands):
         try:
@@ -59,7 +61,7 @@ class PGClass:
         return [var[0] for var in res]
 
     def update_value_by_pk(self, pk, pk_value, table_name, column, value):
-        """This method will update column by provided primary key and table name """
+        """This method will update column by provided primary key and table name"""
         command = f"""UPDATE "{self.scheme}"."{table_name}" SET "{column}"='{value}' WHERE {pk} = '{pk_value}';"""
         try:
             cur = self.conn.cursor()
@@ -92,7 +94,9 @@ class PGClass:
         """
         Delete entire row by providing key and value [primary key]
         """
-        command = f"""delete from "{self.scheme}"."{table_name}" where "{pk}"='{pk_value}';"""
+        command = (
+            f"""delete from "{self.scheme}"."{table_name}" where "{pk}"='{pk_value}';"""
+        )
         try:
             cur = self.conn.cursor()
             cur.execute(command)
@@ -135,7 +139,7 @@ class PGClass:
         :param value: column name to get
         """
 
-        search_str = '->'.join(["'"+c+"'" for c in canonic_keys])
+        search_str = "->".join(["'" + c + "'" for c in canonic_keys])
         command = f"""select * from "{self.scheme}"."{table_name}" where "{pk}"->{search_str}->'{value}' is not NULL;"""
         try:
             cur = self.conn.cursor()
@@ -157,7 +161,7 @@ class PGClass:
         :param value: column name to get
         """
 
-        search_str = '->'.join(["'"+c+"'" for c in canonic_keys])
+        search_str = "->".join(["'" + c + "'" for c in canonic_keys])
         command = f"""delete from "{self.scheme}"."{table_name}" where "{pk}"->{search_str}->'{value}' is not NULL;"""
         try:
             cur = self.conn.cursor()
@@ -170,7 +174,6 @@ class PGClass:
             _log.error(str(e))
             raise e
 
-
     def get_by_n_argument(self, table_name, pk, pk_values, column):
         """
         This method send query with multiple number of pk arguments
@@ -181,7 +184,7 @@ class PGClass:
         """
         for idx, i in enumerate(pk_values):
             pk_values[idx] = f"'{i}'"
-        args_str = ','.join(pk_values)
+        args_str = ",".join(pk_values)
         command = f"""select "{column}" from "{self.scheme}"."{table_name}" where "{pk}" in ({args_str})"""
         try:
             cur = self.conn.cursor()
@@ -194,16 +197,24 @@ class PGClass:
         res = [r[0] for r in res]
         return res
 
-    def update_multi_with_multi(self, table_name, pk, column, values, type_pk, type_col):
+    def update_multi_with_multi(
+        self, table_name, pk, column, values, type_pk, type_col
+    ):
         """
-         Insert multiple rows with one query
+        Insert multiple rows with one query
         """
         update_query = f"""with vals (i,j) as (values"""
         for v in values:
-            update_query = update_query + f""" (cast('{v[0]}' as {type_pk}),cast('{v[1]}' as {type_col})),"""
+            update_query = (
+                update_query
+                + f""" (cast('{v[0]}' as {type_pk}),cast('{v[1]}' as {type_col})),"""
+            )
             # update_query = update_query + f""" ('{v[0]}' ,'{v[1]}'),"""
-        update_query = update_query[:-1]+")"
-        update_query = update_query + f""" update "{self.scheme}"."{table_name}" as my_table set "{column}" = vals.j from vals where my_table.{pk} = vals.i;"""
+        update_query = update_query[:-1] + ")"
+        update_query = (
+            update_query
+            + f""" update "{self.scheme}"."{table_name}" as my_table set "{column}" = vals.j from vals where my_table.{pk} = vals.i;"""
+        )
         # update = f"""update {table_name} set {column} = vals.j from vals where {table_name}.{pk} = vals.i;"""
 
         # insert_query = f"""insert into {table_name} ({pk}, {column}) values {records_list_template}"""
@@ -214,12 +225,14 @@ class PGClass:
         self.conn.commit()
         cur.close()
 
-    def get_rows_by_order(self, table_name, order_key=None, order_desc=False, return_as_dict=False):
+    def get_rows_by_order(
+        self, table_name, order_key=None, order_desc=False, return_as_dict=False
+    ):
         """
         This method will query for entire table rows order by specific parameter
         """
 
-        asc_desc = 'asc' if not order_desc else 'desc'
+        asc_desc = "asc" if not order_desc else "desc"
         command = f"""select * from "{self.scheme}"."{table_name}" order by "{order_key}" {asc_desc}"""
 
         try:
@@ -246,7 +259,14 @@ class PGClass:
             _log.error(str(e))
             raise e
 
-    def get_rows_by_keys(self, table_name, keys_values, order_key=None, order_desc=False, return_as_dict=False):
+    def get_rows_by_keys(
+        self,
+        table_name,
+        keys_values,
+        order_key=None,
+        order_desc=False,
+        return_as_dict=False,
+    ):
         """
         This method returns rows that suitable on several keys-values
         :param table_name: table name
@@ -265,7 +285,7 @@ class PGClass:
         if not order_key:
             command = f"""select * from "{self.scheme}"."{table_name}" where ({key_value_stat})"""
         else:
-            asc_desc = 'asc' if not order_desc else 'desc'
+            asc_desc = "asc" if not order_desc else "desc"
             command = f"""select * from "{self.scheme}"."{table_name}" where ({key_value_stat}) order by "{order_key}" {asc_desc}"""
         try:
             cur = self.conn.cursor()
@@ -292,8 +312,6 @@ class PGClass:
             raise e
         # res = [r[0] for r in res]
         # return res
-
-
 
     # def create_table(self, table_name, primary_key, columns):
     #     """

@@ -20,7 +20,10 @@ def bounding_box(points):
     :return: List of bounding box.
     """
     x_coordinates, y_coordinates = zip(*points)
-    return [(min(x_coordinates), min(y_coordinates)), (max(x_coordinates), max(y_coordinates))]
+    return [
+        (min(x_coordinates), min(y_coordinates)),
+        (max(x_coordinates), max(y_coordinates)),
+    ]
 
 
 def get_polygon_perimeter(coordinates):

@@ -2,25 +2,27 @@
 This module is the wrapper for job manager api according provided swagger
 """
 import json
-import time
 import logging
-from mc_automation_tools.configuration import config
-from mc_automation_tools import base_requests, common
+import time
 
-_log = logging.getLogger('mc_automation_tools.ingestion_api.job_manager_api')
+from mc_automation_tools import base_requests
+from mc_automation_tools import common
+from mc_automation_tools.configuration import config
+
+_log = logging.getLogger("mc_automation_tools.ingestion_api.job_manager_api")
 
 
 class JobsTasksManager:
-    __jobs_api = 'jobs'
-    __resettable = 'resettable'
-    __reset = 'reset'
-    __tasks = 'tasks'
-    __tasks_status = 'tasksStatus'
-    __find = 'find'
-    __start_pending = 'startPending'
-    __find_inactive = 'findInactive'
-    __release_inactive = 'releaseInactive'
-    __update_expired_status = 'updateExpiredStatus'
+    __jobs_api = "jobs"
+    __resettable = "resettable"
+    __reset = "reset"
+    __tasks = "tasks"
+    __tasks_status = "tasksStatus"
+    __find = "find"
+    __start_pending = "startPending"
+    __find_inactive = "findInactive"
+    __release_inactive = "releaseInactive"
+    __update_expired_status = "updateExpiredStatus"
 
     def __init__(self, end_point_url):
         self.__end_point_url = end_point_url
@@ -28,16 +30,16 @@ class JobsTasksManager:
     @property
     def get_class_params(self):
         params = {
-            'jobs_api': self.__jobs_api,
-            'resettable': self.__resettable,
-            'reset': self.__reset,
-            'tasks': self.__tasks,
-            'tasks_status': self.__tasks_status,
-            'find': self.__find,
-            'start_pending': self.__start_pending,
-            'find_inactive': self.__find_inactive,
-            'release_inactive': self.__release_inactive,
-            'update_expired_status': self.__update_expired_status
+            "jobs_api": self.__jobs_api,
+            "resettable": self.__resettable,
+            "reset": self.__reset,
+            "tasks": self.__tasks,
+            "tasks_status": self.__tasks_status,
+            "find": self.__find,
+            "start_pending": self.__start_pending,
+            "find_inactive": self.__find_inactive,
+            "release_inactive": self.__release_inactive,
+            "update_expired_status": self.__update_expired_status,
         }
         return params
 
@@ -62,7 +64,8 @@ class JobsTasksManager:
         resp = base_requests.send_get_request(url, params)
         if resp.status_code != config.ResponseCode.Ok.value:
             raise Exception(
-                f'[find_jobs_by_criteria]:failed retrieve jobs, return with error:[{resp.status_code}],error msg:[{str(resp.content)}]')
+                f"[find_jobs_by_criteria]:failed retrieve jobs, return with error:[{resp.status_code}],error msg:[{str(resp.content)}]"
+            )
 
         return json.loads(resp.content)
 
@@ -99,27 +102,29 @@ class JobsTasksManager:
         if isinstance(body, dict):
             body = json.dumps(body)
         elif not isinstance(body, str):
-            raise ValueError(f'params is not on valid params -> json or dict')
+            raise ValueError(f"params is not on valid params -> json or dict")
 
         resp = base_requests.send_post_request(url, body)
         if resp.status_code != config.ResponseCode.ChangeOk.value:
             raise Exception(
-                f'[create_new_job]:failed on creation new job, return with error:[{resp.status_code}],error msg:[{str(resp.content)}]')
+                f"[create_new_job]:failed on creation new job, return with error:[{resp.status_code}],error msg:[{str(resp.content)}]"
+            )
         return json.loads(resp.content)
 
     def get_job_by_id(self, uuid, return_tasks=True):
-        """
+        r"""
         This method will query specific job according its uuid
         :param uuid: str -> unique id of job provided on creation
         :param return_tasks: bool -> Flag if provide with response also the tasks related
         :return: json\ dict of the job
         """
         url = common.combine_url(self.__end_point_url, self.__jobs_api, uuid)
-        params = {'shouldReturnTasks': str(return_tasks).lower()}
+        params = {"shouldReturnTasks": str(return_tasks).lower()}
         resp = base_requests.send_get_request(url, params)
         if resp.status_code != config.ResponseCode.Ok.value:
             raise Exception(
-                f'[get_job_by_id]:failed retrieve job, return with error:[{resp.status_code}]:error msg:[{str(resp.content)}]')
+                f"[get_job_by_id]:failed retrieve job, return with error:[{resp.status_code}]:error msg:[{str(resp.content)}]"
+            )
 
         return json.loads(resp.content)
 
@@ -144,11 +149,12 @@ class JobsTasksManager:
         if isinstance(body, dict):
             body = json.dumps(body)
         elif not isinstance(body, str):
-            raise ValueError(f'params is not on valid params -> json or dict')
+            raise ValueError(f"params is not on valid params -> json or dict")
         resp = base_requests.send_put_request(url, body)
         if resp.status_code != config.ResponseCode.Ok.value:
             raise Exception(
-                f'[get_job_by_id]:failed update job, return with error:[{resp.status_code}]:error msg:[{str(resp.content)}]')
+                f"[get_job_by_id]:failed update job, return with error:[{resp.status_code}]:error msg:[{str(resp.content)}]"
+            )
         return resp.text
 
     def delete_job(self, uuid, return_tasks=True):
@@ -159,11 +165,12 @@ class JobsTasksManager:
         :return: response state
         """
         url = common.combine_url(self.__end_point_url, self.__jobs_api, uuid)
-        params = json.dumps({'shouldReturnTasks': return_tasks})
+        params = json.dumps({"shouldReturnTasks": return_tasks})
         resp = base_requests.send_delete_request(url, params)
         if resp.status_code != config.ResponseCode.Ok.value:
             raise Exception(
-                f'[delete_job]:failed delete job, return with error:[{resp.status_code}]:error msg:[{str(resp.content)}]')
+                f"[delete_job]:failed delete job, return with error:[{resp.status_code}]:error msg:[{str(resp.content)}]"
+            )
 
         return json.loads(resp.content)
 
@@ -173,11 +180,14 @@ class JobsTasksManager:
         :param uuid: str -> unique id of job provided on creation
         :return: dict -> {jobId:str, isResettable:bool} on success
         """
-        url = common.combine_url(self.__end_point_url, self.__jobs_api, uuid, self.__resettable)
+        url = common.combine_url(
+            self.__end_point_url, self.__jobs_api, uuid, self.__resettable
+        )
         resp = base_requests.send_post_request(url)
         if resp.status_code != config.ResponseCode.Ok.value:
             raise Exception(
-                f'[resettable]:failed get resettable state for job, return with error:[{resp.status_code}]:error msg:[{str(resp.content)}]')
+                f"[resettable]:failed get resettable state for job, return with error:[{resp.status_code}]:error msg:[{str(resp.content)}]"
+            )
 
         return json.loads(resp.content)
 
@@ -187,11 +197,14 @@ class JobsTasksManager:
         :param uuid: str -> unique id of job provided on creation
         :return: dict -> {jobId:str, isResettable:bool} on success
         """
-        url = common.combine_url(self.__end_point_url, self.__jobs_api, uuid, self.__reset)
+        url = common.combine_url(
+            self.__end_point_url, self.__jobs_api, uuid, self.__reset
+        )
         resp = base_requests.send_post_request(url)
         if resp.status_code != config.ResponseCode.Ok.value:
             raise Exception(
-                f'[reset]:failed start reset on resettable job, return with error:[{resp.status_code}]:error msg:[{str(resp.content)}]')
+                f"[reset]:failed start reset on resettable job, return with error:[{resp.status_code}]:error msg:[{str(resp.content)}]"
+            )
 
         return str(resp.text)
 
@@ -202,11 +215,14 @@ class JobsTasksManager:
         :param uuid: str -> unique id of job provided on creation
         :return: list[dict] -> list of dicts representing all tasks under provided job
         """
-        url = common.combine_url(self.__end_point_url, self.__jobs_api, uuid, self.__tasks)
+        url = common.combine_url(
+            self.__end_point_url, self.__jobs_api, uuid, self.__tasks
+        )
         resp = base_requests.send_get_request(url)
         if resp.status_code != config.ResponseCode.Ok.value:
             raise Exception(
-                f'[tasks]:failed get tasks of job, return with error:[{resp.status_code}]:error msg:[{str(resp.content)}]')
+                f"[tasks]:failed get tasks of job, return with error:[{resp.status_code}]:error msg:[{str(resp.content)}]"
+            )
 
         return json.loads(resp.content)
 
@@ -227,11 +243,14 @@ class JobsTasksManager:
         :param body: dict -> body contain of the fields to insert on new task
         :return: dict -> id: <new id of the created task>
         """
-        url = common.combine_url(self.__end_point_url, self.__jobs_api, uuid, self.__tasks)
+        url = common.combine_url(
+            self.__end_point_url, self.__jobs_api, uuid, self.__tasks
+        )
         resp = base_requests.send_post_request(url, body)
         if resp.status_code != config.ResponseCode.ChangeOk.value:
             raise Exception(
-                f'[create_task]:failed insert new task to job, return with error:[{resp.status_code}]:error msg:[{str(resp.content)}]')
+                f"[create_task]:failed insert new task to job, return with error:[{resp.status_code}]:error msg:[{str(resp.content)}]"
+            )
 
         return json.loads(resp.content)
 
@@ -242,11 +261,14 @@ class JobsTasksManager:
         :param task_id: uuid of requested task
         :return: dict(json) of task
         """
-        url = common.combine_url(self.__end_point_url, self.__jobs_api, job_id, self.__tasks, task_id)
+        url = common.combine_url(
+            self.__end_point_url, self.__jobs_api, job_id, self.__tasks, task_id
+        )
         resp = base_requests.send_get_request(url)
         if resp.status_code != config.ResponseCode.Ok.value:
             raise Exception(
-                f'[get_task_by_task_id]:failed retrieve task data, return with error:[{resp.status_code}]:error msg:[{str(resp.text)}]')
+                f"[get_task_by_task_id]:failed retrieve task data, return with error:[{resp.status_code}]:error msg:[{str(resp.text)}]"
+            )
 
         return json.loads(resp.content)
 
@@ -267,11 +289,14 @@ class JobsTasksManager:
         :param params: dict with body params
         :return: status
         """
-        url = common.combine_url(self.__end_point_url, self.__jobs_api, job_id, self.__tasks, task_id)
+        url = common.combine_url(
+            self.__end_point_url, self.__jobs_api, job_id, self.__tasks, task_id
+        )
         resp = base_requests.send_put_request(url, json.dumps(params))
         if resp.status_code != config.ResponseCode.Ok.value:
             raise Exception(
-                f'[update_task_by_task_id]:failed update task data, return with error:[{resp.status_code}]:error msg:[{str(resp.text)}]')
+                f"[update_task_by_task_id]:failed update task data, return with error:[{resp.status_code}]:error msg:[{str(resp.text)}]"
+            )
 
         return resp.text
 
@@ -282,11 +307,14 @@ class JobsTasksManager:
         :param task_id: uuid of requested task
         :return: status
         """
-        url = common.combine_url(self.__end_point_url, self.__jobs_api, job_id, self.__tasks, task_id)
+        url = common.combine_url(
+            self.__end_point_url, self.__jobs_api, job_id, self.__tasks, task_id
+        )
         resp = base_requests.send_delete_request(url)
         if resp.status_code != config.ResponseCode.Ok.value:
             raise Exception(
-                f'[update_task_by_task_id]:failed delete task data, return with error:[{resp.status_code}]:error msg:[{str(resp.text)}]')
+                f"[update_task_by_task_id]:failed delete task data, return with error:[{resp.status_code}]:error msg:[{str(resp.text)}]"
+            )
 
         return resp.text
 
@@ -302,11 +330,14 @@ class JobsTasksManager:
                           "resourceVersion": "string"
                         }
         """
-        url = common.combine_url(self.__end_point_url, self.__jobs_api, job_id, self.__tasks_status)
+        url = common.combine_url(
+            self.__end_point_url, self.__jobs_api, job_id, self.__tasks_status
+        )
         resp = base_requests.send_get_request(url)
         if resp.status_code != config.ResponseCode.Ok.value:
             raise Exception(
-                f'[get_all_tasks_status]:failed get tasks status for job: [{job_id}], return with error:[{resp.status_code}]:error msg:[{str(resp.text)}]')
+                f"[get_all_tasks_status]:failed get tasks status for job: [{job_id}], return with error:[{resp.status_code}]:error msg:[{str(resp.text)}]"
+            )
 
         return json.loads(resp.content)
 
@@ -348,7 +379,8 @@ class JobsTasksManager:
         s_code, content = common.response_parser(resp)
         if s_code != config.ResponseCode.Ok.value:
             raise Exception(
-                f'[find_tasks]:failed find tasks , return with error:[{s_code}]:error msg:[{content})]')
+                f"[find_tasks]:failed find tasks , return with error:[{s_code}]:error msg:[{content})]"
+            )
 
         return content
 
@@ -372,11 +404,14 @@ class JobsTasksManager:
                               "attempts": 0
                            }
         """
-        url = common.combine_url(self.__end_point_url, self.__tasks, task_type, self.__start_pending)
+        url = common.combine_url(
+            self.__end_point_url, self.__tasks, task_type, self.__start_pending
+        )
         resp = base_requests.send_post_request(url)
         if resp.status_code != config.ResponseCode.Ok.value:
             raise Exception(
-                f'[start_pending]:failed find pending tasks , return with error:[{resp.status_code}]:error msg:[{str(resp.text)}]')
+                f"[start_pending]:failed find pending tasks , return with error:[{resp.status_code}]:error msg:[{str(resp.text)}]"
+            )
 
         return json.loads(resp.content)
 
@@ -401,11 +436,14 @@ class JobsTasksManager:
             }
         :return: list[str] -> list of id's of inactive tasks
         """
-        url = common.combine_url(self.__end_point_url, self.__tasks, self.__find_inactive)
+        url = common.combine_url(
+            self.__end_point_url, self.__tasks, self.__find_inactive
+        )
         resp = base_requests.send_post_request(url, params)
         if resp.status_code != config.ResponseCode.Ok.value:
             raise Exception(
-                f'[find_inactive]:failed retrieve inactive tasks , return with error:[{resp.status_code}]:error msg:[{str(resp.text)}]')
+                f"[find_inactive]:failed retrieve inactive tasks , return with error:[{resp.status_code}]:error msg:[{str(resp.text)}]"
+            )
 
         return json.loads(resp.content)
 
@@ -415,11 +453,14 @@ class JobsTasksManager:
         :param list_of_ids: list of id's to release
         :return: list[str] -> list of id's of inactive tasks
         """
-        url = common.combine_url(self.__end_point_url, self.__tasks, self.__release_inactive)
+        url = common.combine_url(
+            self.__end_point_url, self.__tasks, self.__release_inactive
+        )
         resp = base_requests.send_post_request(url, list_of_ids)
         if resp.status_code != config.ResponseCode.Ok.value:
             raise Exception(
-                f'[release_inactive]:failed release inactive tasks , return with error:[{resp.status_code}]:error msg:[{str(resp.text)}]')
+                f"[release_inactive]:failed release inactive tasks , return with error:[{resp.status_code}]:error msg:[{str(resp.text)}]"
+            )
 
         return json.loads(resp.content)
 
@@ -428,64 +469,97 @@ class JobsTasksManager:
         This method will update status of open jobs and tasks to "Expired" if their expiration date has passed
         :return:
         """
-        url = common.combine_url(self.__end_point_url, self.__tasks, self.__update_expired_status)
+        url = common.combine_url(
+            self.__end_point_url, self.__tasks, self.__update_expired_status
+        )
         resp = base_requests.send_post_request(url)
         if resp.status_code != config.ResponseCode.Ok.value:
             raise Exception(
-                f'[update_expired_status]:failed update, return with error:[{resp.status_code}]:error msg:[{str(resp.text)}]')
+                f"[update_expired_status]:failed update, return with error:[{resp.status_code}]:error msg:[{str(resp.text)}]"
+            )
 
         return str(resp.text)
 
     # ========================================== Shared components =====================================================
-    def follow_running_job_manager(self, product_id, product_version, product_type='Discrete-Tiling', timeout=300,
-                                   internal_timeout=80):
+    def follow_running_job_manager(
+        self,
+        product_id,
+        product_version,
+        product_type="Discrete-Tiling",
+        timeout=300,
+        internal_timeout=80,
+    ):
         """This method will follow running ingestion task and return results on finish"""
 
         t_end = time.time() + timeout
         running = True
         find_job_params = {
-            'resourceId': product_id,
-            'version': product_version,
-            'shouldReturnTasks': str(True).lower(),  # example to make it compatible to query params
-            'type': product_type
+            "resourceId": product_id,
+            "version": product_version,
+            "shouldReturnTasks": str(
+                True
+            ).lower(),  # example to make it compatible to query params
+            "type": product_type,
         }
         resp = self.find_jobs_by_criteria(find_job_params)[0]
         if not resp:
-            raise Exception(f'Job for {product_id}:{product_version} not found')
-        _log.info(f'Found job with details:\n'
-                  f'id: [{resp["id"]}]\n'
-                  f'resourceId (product id): [{resp["resourceId"]}]\n'
-                  f'version: [{resp["version"]}]\n'
-                  f'parameters: [{resp["parameters"]}]\n'
-                  f'status: [{resp["status"]}]\n'
-                  f'percentage: [{resp["percentage"]}]\n'
-                  f'reason: [{resp["reason"]}]\n'
-                  f'isCleaned: [{resp["isCleaned"]}]\n'
-                  f'priority: [{resp["priority"]}]\n'
-                  f'Num of tasks related to job: [{len(resp["tasks"])}]')
+            raise Exception(f"Job for {product_id}:{product_version} not found")
+        _log.info(
+            f"Found job with details:\n"
+            f'id: [{resp["id"]}]\n'
+            f'resourceId (product id): [{resp["resourceId"]}]\n'
+            f'version: [{resp["version"]}]\n'
+            f'parameters: [{resp["parameters"]}]\n'
+            f'status: [{resp["status"]}]\n'
+            f'percentage: [{resp["percentage"]}]\n'
+            f'reason: [{resp["reason"]}]\n'
+            f'isCleaned: [{resp["isCleaned"]}]\n'
+            f'priority: [{resp["priority"]}]\n'
+            f'Num of tasks related to job: [{len(resp["tasks"])}]'
+        )
         job = resp
 
         while running:
             time.sleep(internal_timeout // 4)
-            job_id = job['id']
+            job_id = job["id"]
             job = self.get_job_by_id(job_id)  # now getting job info by unique job id
 
-            job_id = job['id']
-            status = job['status']
-            reason = job['reason']
-            tasks = job['tasks']
+            job_id = job["id"]
+            status = job["status"]
+            reason = job["reason"]
+            tasks = job["tasks"]
 
-            completed_task = sum(1 for task in tasks if task['status'] == config.JobStatus.Completed.name)
-            _log.info(f'\nStatus of job for resource: {product_id}:{product_version} is [{status}]\n'
-                      f'finished tasks for current job: {completed_task} / {len(tasks)}')
+            completed_task = sum(
+                1 for task in tasks if task["status"] == config.JobStatus.Completed.name
+            )
+            _log.info(
+                f"\nStatus of job for resource: {product_id}:{product_version} is [{status}]\n"
+                f"finished tasks for current job: {completed_task} / {len(tasks)}"
+            )
 
             if status == config.JobStatus.Completed.name:
-                return {'status': status, 'message': " ".join(['OK', reason]), 'job_id': job_id, 'tasks': tasks}
+                return {
+                    "status": status,
+                    "message": " ".join(["OK", reason]),
+                    "job_id": job_id,
+                    "tasks": tasks,
+                }
             elif status == config.JobStatus.Failed.name:
-                return {'status': status, 'message': " ".join(['Failed: ', reason]), 'job_id': job_id, 'tasks': tasks}
+                return {
+                    "status": status,
+                    "message": " ".join(["Failed: ", reason]),
+                    "job_id": job_id,
+                    "tasks": tasks,
+                }
 
             current_time = time.time()
 
             if t_end < current_time:
-                return {'status': status, 'message': " ".join(['Failed: ', 'got timeout while following job running']),
-                        'job_id': job_id, 'tasks': tasks}
+                return {
+                    "status": status,
+                    "message": " ".join(
+                        ["Failed: ", "got timeout while following job running"]
+                    ),
+                    "job_id": job_id,
+                    "tasks": tasks,
+                }

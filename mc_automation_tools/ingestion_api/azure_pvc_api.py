@@ -1,23 +1,24 @@
 """This module will wrap access for azure's pv that raster ingestion based on - not for production testing"""
-from mc_automation_tools.configuration import config
-from mc_automation_tools import common
 from mc_automation_tools import base_requests
+from mc_automation_tools import common
+from mc_automation_tools.configuration import config
 
 
 class PVCHandler:
     """This is wrapper interface for pvc automation service"""
-    __createTestDir = 'createTestDir'
-    __updateShape = 'updateShape'
-    __changeMaxZoom = 'changeMaxZoom'
-    __validatePath = 'validatePath'
-    __deleteTestDir = 'deleteTestDir'
-    __createWatchDir = 'createWatchDir'
-    __updateWatchShape = 'updateWatchShape'
-    __changeWatchMaxZoom = 'changeWatchMaxZoom'
-    __validateWatchPath = 'validateWatchPath'
-    __deleteFromFolder = 'deleteFromFolder'
-    __createMockFile = 'createMockFile'
-    __copyFile = 'copyFile'
+
+    __createTestDir = "createTestDir"
+    __updateShape = "updateShape"
+    __changeMaxZoom = "changeMaxZoom"
+    __validatePath = "validatePath"
+    __deleteTestDir = "deleteTestDir"
+    __createWatchDir = "createWatchDir"
+    __updateWatchShape = "updateWatchShape"
+    __changeWatchMaxZoom = "changeWatchMaxZoom"
+    __validateWatchPath = "validateWatchPath"
+    __deleteFromFolder = "deleteFromFolder"
+    __createMockFile = "createMockFile"
+    __copyFile = "copyFile"
 
     def __init__(self, endpoint_url, watch=True):
         self.__end_point_url = endpoint_url
@@ -26,19 +27,19 @@ class PVCHandler:
     @property
     def get_class_params(self):
         params = {
-            'createTestDir': self.__createTestDir,
-            'watch': self.__watch,
-            'updateShape': self.__updateShape,
-            'changeMaxZoom': self.__changeMaxZoom,
-            'validatePath': self.__validatePath,
-            'deleteTestDir': self.__deleteTestDir,
-            'createWatchDir': self.__createWatchDir,
-            'updateWatchShape': self.__updateWatchShape,
-            'changeWatchMaxZoom': self.__changeWatchMaxZoom,
-            'validateWatchPath': self.__validateWatchPath,
-            'deleteFromFolder': self.__deleteFromFolder,
-            'createMockFile': self.__createMockFile,
-            'copyFile': self.__copyFile
+            "createTestDir": self.__createTestDir,
+            "watch": self.__watch,
+            "updateShape": self.__updateShape,
+            "changeMaxZoom": self.__changeMaxZoom,
+            "validatePath": self.__validatePath,
+            "deleteTestDir": self.__deleteTestDir,
+            "createWatchDir": self.__createWatchDir,
+            "updateWatchShape": self.__updateWatchShape,
+            "changeWatchMaxZoom": self.__changeWatchMaxZoom,
+            "validateWatchPath": self.__validateWatchPath,
+            "deleteFromFolder": self.__deleteFromFolder,
+            "createMockFile": self.__createMockFile,
+            "copyFile": self.__copyFile,
         }
         return params
 
@@ -56,8 +57,6 @@ class PVCHandler:
             resp = base_requests.send_get_request(url, params)
         return resp
 
-
-
     def create_new_ingestion_dir(self):
         """
         This method will send http get request to pvc server and create new directory of ingested source data
@@ -73,7 +72,7 @@ class PVCHandler:
         This function will send get request and update tfw files to resolution that fit to required zoom level
         :param required_zoom: integer represent zoom level according mapping on config file zoom -> resolution
         """
-        params = {'max_zoom': config.zoom_level_dict[required_zoom]}
+        params = {"max_zoom": config.zoom_level_dict[required_zoom]}
         api = self.__changeWatchMaxZoom if self.__watch else self.__changeMaxZoom
         url = common.combine_url(self.__end_point_url, api)
         resp = base_requests.send_get_request(url, params)
@@ -104,7 +103,7 @@ class PVCHandler:
         """
         This function will delete ingestion test dir
         """
-        param = {'folder': folder_name}
+        param = {"folder": folder_name}
         url = common.combine_url(self.__end_point_url, self.__deleteTestDir)
         resp = base_requests.send_get_request(url, param)
         return resp
@@ -113,8 +112,11 @@ class PVCHandler:
         """
         This function will delete ingestion test dir
         """
-        param = {'folder': folder_name, 'file': file_name}
-        url = common.combine_url(self.__end_point_url, self.__deleteFromFolder, )
+        param = {"folder": folder_name, "file": file_name}
+        url = common.combine_url(
+            self.__end_point_url,
+            self.__deleteFromFolder,
+        )
         resp = base_requests.send_get_request(url, param)
         return resp
 
@@ -122,8 +124,11 @@ class PVCHandler:
         """
         This function will create file in folder
         """
-        param = {'folder': folder_name, 'file': file_name}
-        url = common.combine_url(self.__end_point_url, self.__createMockFile, )
+        param = {"folder": folder_name, "file": file_name}
+        url = common.combine_url(
+            self.__end_point_url,
+            self.__createMockFile,
+        )
         resp = base_requests.send_get_request(url, param)
         return resp
 
@@ -131,7 +136,10 @@ class PVCHandler:
         """
         This function will create file in folder
         """
-        param = {'src': src_folder, 'dest': dest_folder}
-        url = common.combine_url(self.__end_point_url, self.__copyFile, )
+        param = {"src": src_folder, "dest": dest_folder}
+        url = common.combine_url(
+            self.__end_point_url,
+            self.__copyFile,
+        )
         resp = base_requests.send_get_request(url, param)
         return resp

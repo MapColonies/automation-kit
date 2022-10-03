@@ -22,4 +22,4 @@
     * azure pvc handler -> automation internal service to mock NFS
 7. MC-sync mutual API's wrappers:
     * layer spec api wrapper:
-        * Multiple API access as describe on layer spec api docs 
+        * Multiple API access as describe on layer spec api docs
