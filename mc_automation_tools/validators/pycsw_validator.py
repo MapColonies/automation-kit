@@ -1,15 +1,14 @@
 """
 This module provide data validation utils testing data on pycsw [catalog] data
 """
-import logging
-
 import xmltodict
-from discrete_kit.validator.json_compare_pycsw import *
+import logging
 
 from mc_automation_tools import base_requests
 from mc_automation_tools.configuration import config
+from discrete_kit.validator.json_compare_pycsw import *
 
-_log = logging.getLogger("mc_automation_tools.validators.pycsw_validator")
+_log = logging.getLogger('mc_automation_tools.validators.pycsw_validator')
 
 
 class PycswHandler:
@@ -33,10 +32,8 @@ class PycswHandler:
         self.__pycsw_endpoint_url = pycsw_endpoint_url
         self.__get_raster_record_params = get_raster_record_params
         if not self.__get_raster_record_params:
-            _log.warning(
-                "get_raster_record_params not provided for query raster records it may crash on those "
-                "functionalities"
-            )
+            _log.warning("get_raster_record_params not provided for query raster records it may crash on those "
+                         "functionalities")
 
     def set_get_params(self, params):
         """
@@ -45,16 +42,9 @@ class PycswHandler:
         if params:
             self.__get_raster_record_params = params
         else:
-            raise ValueError("Should provide params")
+            raise ValueError('Should provide params')
 
-    def validate_pycsw(
-        self,
-        source_json_metadata,
-        product_id=None,
-        product_version=None,
-        sync_flag=False,
-        header=None,
-    ):
+    def validate_pycsw(self, source_json_metadata, product_id=None, product_version=None, sync_flag=False, header=None, token=None):
         """
         compare original metadata (represented as dict) with catalog data (pycsw)
         :param source_json_metadata: original meta data dictionary -> {'metadata': {<json data>}}
@@ -62,26 +52,19 @@ class PycswHandler:
         :param product_version: layer version
         :return: dict of result validation
         """
-        res_dict = {"validation": True, "reason": ""}
+        res_dict = {'validation': True, 'reason': ""}
         get_records_params = self.__get_raster_record_params
+        get_records_params['token'] = token
         if not get_records_params:
-            raise ValueError(
-                "Parameters of <get_raster_record_params> are empty - should provide on instance creation"
-            )
+            raise ValueError('Parameters of <get_raster_record_params> are empty - should provide on instance creation')
 
-        pycsw_records = self.get_record_by_id(
-            product_id, product_version, params=get_records_params, header=header
-        )
+        pycsw_records = self.get_record_by_id(product_id,
+                                              product_version,
+                                              params=get_records_params)
 
         if not pycsw_records:
-            return {
-                "results": {
-                    "validation": False,
-                    "reason": f"Records of [{product_id}] not found",
-                },
-                "pycsw_record": None,
-                "links": None,
-            }
+            return {"results": {'validation': False, 'reason': f'Records of [{product_id}] not found'},
+                    "pycsw_record": None, "links": None}
 
         # todo -> mabye delete this section \ refactor to more generic
         links = {}
@@ -92,49 +75,41 @@ class PycswHandler:
         #         # ,record['mc:links'][2]['@scheme']: record['mc:links'][2]['#text']
         #     }
         for record in pycsw_records:
-            links[record["mc:productType"]] = {
-                rec["@scheme"]: rec["#text"] for rec in record["mc:links"]
-            }
+            links[record['mc:productType']] = {rec['@scheme']: rec['#text'] for rec in record['mc:links']}
+        for li in links['Orthophoto']:
+            links['Orthophoto'][li] += f"?token={token}"
 
             # source_json_metadata_dic = {'metadata': source_json_metadata}
         # todo -> validate outher data is valid and provided as dict
         source_json_metadata_dic = source_json_metadata
-        validation_flag, err_dict = validate_pycsw_with_shape_json(
-            pycsw_records, source_json_metadata_dic, sync_flag
-        )
+        validation_flag, err_dict = validate_pycsw_with_shape_json(pycsw_records, source_json_metadata_dic, sync_flag)
 
-        res_dict["validation"] = validation_flag
-        res_dict["reason"] = err_dict
-        return {"results": res_dict, "pycsw_record": pycsw_records, "links": links}
+        res_dict['validation'] = validation_flag
+        res_dict['reason'] = err_dict
+        return {'results': res_dict, 'pycsw_record': pycsw_records, 'links': links}
 
     def get_record_by_id(self, product_id, product_version, params, header=None):
         """
-        This method find record by semi unique ID -> product_name & product_id
-        :param product_version: discrete version
-        :param product_id: discrete id
-        :param params: request parameters for GetRecords API request with json result ->
-         ** example:
-             {
-                 'service': PYCSW_SERVICE, ["CSW"]
-                 'version': PYCSW_VERSION, ["2.0.2"]
-                 'request': PYCSW_REQUEST_GET_RECORDS, ["GetRecords"]
-                 'typenames': PYCSW_TYPE_NAMES, ["mc:MCRasterRecord"]
-                 'ElementSetName': PYCSW_ElEMENT_SET_NAME, ["full"]
-                 'outputFormat': PYCSW_OUTPUT_FORMAT, ["application/xml"]
-                 'resultType': PYCSW_RESULT_TYPE, ["results"]
-                 'outputSchema': PYCSW_OUTPUT_SCHEMA [None]
-             }
-        :return: list of records [orthophoto and orthophotoHistory]
-        """
+           This method find record by semi unique ID -> product_name & product_id
+           :param product_version: discrete version
+           :param product_id: discrete id
+           :param params: request parameters for GetRecords API request with json result ->
+            ** example:
+                {
+                    'service': PYCSW_SERVICE, ["CSW"]
+                    'version': PYCSW_VERSION, ["2.0.2"]
+                    'request': PYCSW_REQUEST_GET_RECORDS, ["GetRecords"]
+                    'typenames': PYCSW_TYPE_NAMES, ["mc:MCRasterRecord"]
+                    'ElementSetName': PYCSW_ElEMENT_SET_NAME, ["full"]
+                    'outputFormat': PYCSW_OUTPUT_FORMAT, ["application/xml"]
+                    'resultType': PYCSW_RESULT_TYPE, ["results"]
+                    'outputSchema': PYCSW_OUTPUT_SCHEMA [None]
+                }
+           :return: list of records [orthophoto and orthophotoHistory]
+       """
         res = self.get_raster_records(params, header)
-        records_list = [
-            record
-            for record in res
-            if (
-                record["mc:productId"] == product_id
-                and record["mc:productVersion"] == product_version
-            )
-        ]
+        records_list = [record for record in res if
+                        (record['mc:productId'] == product_id and record['mc:productVersion'] == product_version)]
         return records_list
 
     def get_raster_records(self, params, header=None):
@@ -155,7 +130,7 @@ class PycswHandler:
         :return: Dict -> list of records - json format
         """
         if header is None:
-            header = {"content-type": "application/json"}
+            header = {'content-type': 'application/json'}
         records_list = []
         next_record = -1
         host = self.__pycsw_endpoint_url
@@ -165,26 +140,15 @@ class PycswHandler:
                 s_code = resp.status_code
                 if s_code != config.ResponseCode.Ok.value:
                     raise Exception(
-                        f"Failed on request GetRecords with error:[{str(resp.text)}] and status code: [{str(s_code)}]"
-                    )
+                        f'Failed on request GetRecords with error:[{str(resp.text)}] and status code: [{str(s_code)}]')
 
                 records = xmltodict.parse(resp.content)
-                cuurent_records = records["csw:GetRecordsResponse"][
-                    "csw:SearchResults"
-                ]["mc:MCRasterRecord"]
-                params["startPosition"] = records["csw:GetRecordsResponse"][
-                    "csw:SearchResults"
-                ]["@nextRecord"]
-                next_record = int(
-                    records["csw:GetRecordsResponse"]["csw:SearchResults"][
-                        "@nextRecord"
-                    ]
-                )
+                cuurent_records = records['csw:GetRecordsResponse']['csw:SearchResults']['mc:MCRasterRecord']
+                params['startPosition'] = records['csw:GetRecordsResponse']['csw:SearchResults']['@nextRecord']
+                next_record = int(records['csw:GetRecordsResponse']['csw:SearchResults']['@nextRecord'])
                 records_list = records_list + cuurent_records
 
         except Exception as e:
-            raise Exception(
-                f"Failed on request records on pycsw host:[{host}] with error:{str(e)}"
-            )
-        del params["startPosition"]
+            raise Exception(f'Failed on request records on pycsw host:[{host}] with error:{str(e)}')
+        del params['startPosition']
         return records_list
