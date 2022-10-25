@@ -38,7 +38,7 @@ class MapproxyHandler:
 
         links = self.extract_from_pycsw(pycsw_records)
         for li in links['Orthophoto']:
-            links['Orthophoto'][li] += f"?token={token}"
+            links['Orthophoto'][li] += f"&token={token}"
         for group in links.keys():
             if group == 'Orthophoto':
                 layer_name = "-".join([product_id, group])
