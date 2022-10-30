@@ -38,7 +38,11 @@ class MapproxyHandler:
 
         links = self.extract_from_pycsw(pycsw_records)
         for li in links['Orthophoto']:
-            links['Orthophoto'][li] += f"&token={token}"
+            if li == "WMS":
+                links['Orthophoto'][li] += f"&token={token}"
+            else:
+                links['Orthophoto'][li] += f"?token={token}"
+
         for group in links.keys():
             if group == 'Orthophoto':
                 layer_name = "-".join([product_id, group])
@@ -99,7 +103,7 @@ class MapproxyHandler:
         """
         try:
             if token:
-                wms_capabilities = common.get_xml_as_dict(wms_capabilities_url + '?token=' + token, header)
+                wms_capabilities = common.get_xml_as_dict(url=wms_capabilities_url, params= token, header=header)
             else:
                 wms_capabilities = common.get_xml_as_dict(wms_capabilities_url, header)
         except Exception as e:
@@ -119,7 +123,7 @@ class MapproxyHandler:
 
         try:
             if token:
-                wmts_capabilities = common.get_xml_as_dict(wmts_capabilities_url)
+                wmts_capabilities = common.get_xml_as_dict(wmts_capabilities_url,token)
             else:
                 wmts_capabilities = common.get_xml_as_dict(wmts_capabilities_url, header)
         except Exception as e:
@@ -141,7 +145,8 @@ class MapproxyHandler:
         product_id = splited_layer_name[0]
         product_version = splited_layer_name[1]
         if product_version == 'Orthophoto' or product_version == 'OrthophotoHistory':
-            object_key = layer_id
+            object_key = layer_id.split("/")[0]
+            # object_key = layer_id
         else:
             # object_key = "/".join([product_id, product_version])
             object_key = os.path.join(product_id, product_version)
