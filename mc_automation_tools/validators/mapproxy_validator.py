@@ -42,6 +42,7 @@ class MapproxyHandler:
                 links['Orthophoto'][li] += f"&token={token}"
             else:
                 links['Orthophoto'][li] += f"?token={token}"
+
         for group in links.keys():
             if group == 'Orthophoto':
                 layer_name = "-".join([product_id, group])
