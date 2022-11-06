@@ -332,3 +332,58 @@ class PGClass:
     #     for key in columns:
     #
     #     pass
+    def get_cloumns_by_n_argument(self, table_name, pk, pk_values, columns):
+        """
+        This method send query with multiple number of pk arguments for spacifics columns
+        :param table_name: table name
+        :param pk: primary key
+        :param pk_values: list of arguments
+        :param column: column names to get
+        """
+        for idx, i in enumerate(pk_values):
+            pk_values[idx] = f"'{i}'"
+        args_str = ",".join(pk_values)
+        command = f"""select {columns} from "{self.scheme}"."{table_name}" where "{pk}" in ({args_str})"""
+        try:
+            cur = self.conn.cursor()
+            cur.execute(command)
+            res = cur.fetchall()
+            cur.close()
+        except Exception as e:
+            _log.error(str(e))
+            raise e
+        return res
+
+    def get_columns_by_like_statements(self,columns , table_name, pk, identifiers, condition_param):
+        """
+        this method return custome columns from table where pk like regex convention
+        :param table_name: table name
+        :param columns: the selected columns
+        :param pk: primary key
+        :param identifiers : identifiers to the like statement
+        :param condition_param: OR or AND
+
+    select product_id, product_version from "RasterCatalogManager"."records" where "product_id" like 'test%' or product_id like 'shay_%' or product_id like 'danny%'
+        """
+        if len(identifiers)> 1:
+            like_statement = ""
+            for i in identifiers[:-1]:
+                like_condition = f" {pk} like '{i}%' {condition_param}"
+                like_statement = like_statement + like_condition
+            last_like_condition = f" {pk} like '{identifiers[-1]}%'"
+            like_statement = like_statement + last_like_condition
+        else:
+            like_statement = f" {pk} like '{identifiers[0]}%'"
+
+        command = f"""select {columns} from "{self.scheme}"."{table_name}" where {like_statement}"""
+        try:
+            cur = self.conn.cursor()
+            cur.execute(command)
+            res = cur.fetchall()
+            cur.close()
+        except Exception as e:
+            _log.error(str(e))
+            raise e
+        return res
+
+
