@@ -354,18 +354,20 @@ class PGClass:
             raise e
         return res
 
-    def get_columns_by_like_statements(self,columns , table_name, pk, identifiers, condition_param):
+    def get_columns_by_like_statements(
+        self, columns, table_name, pk, identifiers, condition_param
+    ):
         """
-        this method return custome columns from table where pk like regex convention
-        :param table_name: table name
-        :param columns: the selected columns
-        :param pk: primary key
-        :param identifiers : identifiers to the like statement
-        :param condition_param: OR or AND
+            this method return custome columns from table where pk like regex convention
+            :param table_name: table name
+            :param columns: the selected columns
+            :param pk: primary key
+            :param identifiers : identifiers to the like statement
+            :param condition_param: OR or AND
 
-    select product_id, product_version from "RasterCatalogManager"."records" where "product_id" like 'test%' or product_id like 'shay_%' or product_id like 'danny%'
+        select product_id, product_version from "RasterCatalogManager"."records" where "product_id" like 'test%' or product_id like 'shay_%' or product_id like 'danny%'
         """
-        if len(identifiers)> 1:
+        if len(identifiers) > 1:
             like_statement = ""
             for i in identifiers[:-1]:
                 like_condition = f" {pk} like '{i}%' {condition_param}"
@@ -385,5 +387,3 @@ class PGClass:
             _log.error(str(e))
             raise e
         return res
-
-

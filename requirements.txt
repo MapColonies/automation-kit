@@ -8,6 +8,7 @@ ogr
 pandas
 paramiko
 pre-commit
+pre-commit
 psycopg2-binary==2.8.6
 PyJWT
 python-graphql-client
