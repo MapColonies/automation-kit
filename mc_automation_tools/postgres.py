@@ -354,6 +354,7 @@ class PGClass:
             raise e
         return res
 
+
     def get_columns_by_like_statements(self, columns, table_name, pk, identifiers, condition_param):
         """
         this method return custome columns from table where pk like regex convention
@@ -364,6 +365,7 @@ class PGClass:
         :param condition_param: OR or AND
 
     select product_id, product_version from "RasterCatalogManager"."records" where "product_id" like 'test%' or product_id like 'shay_%' or product_id like 'danny%'
+
         """
         if len(identifiers) > 1:
             like_statement = ""
@@ -386,6 +388,7 @@ class PGClass:
             raise e
         return res
 
+
     def get_columns_by_pk_equality(self, columns, table_name, pk, pk_value):
         """
         This method return custom columns from the table where pk equal to the given value
@@ -404,3 +407,5 @@ class PGClass:
             _log.error(str(e))
             raise e
         return res
+
+
