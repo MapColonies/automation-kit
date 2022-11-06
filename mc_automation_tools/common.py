@@ -1,19 +1,19 @@
 # pylint: disable=line-too-long, invalid-name
 """Common utils for data parsing and manipulation"""
+import datetime
+import hashlib
+import json
+import logging
 import os
 import posixpath
 import re
-import json
-import hashlib
-import logging
 import time
-import os
-import xmltodict
 import uuid
-import requests
-import datetime
 
-_log = logging.getLogger('automation_tools.common')
+import requests
+import xmltodict
+
+_log = logging.getLogger("automation_tools.common")
 
 
 def check_url_exists(url, timeout=20):
@@ -24,32 +24,45 @@ def check_url_exists(url, timeout=20):
     return result dict that contains: url_valid [boolean], status_code [integer], content [response content], error_msg [str]
     """
 
-    resp_dict = {'url_valid': False, 'status_code': None, 'content': None, 'error_msg': None}
+    resp_dict = {
+        "url_valid": False,
+        "status_code": None,
+        "content": None,
+        "error_msg": None,
+    }
     try:
-        request = requests.get(url, timeout=timeout)  # Here is where im getting the error
+        request = requests.get(
+            url, timeout=timeout
+        )  # Here is where im getting the error
         if request.status_code == 200:
-            _log.info(f'Current url: [{url}] working with status code 200')
-            resp_dict['url_valid'] = True
+            _log.info(f"Current url: [{url}] working with status code 200")
+            resp_dict["url_valid"] = True
         else:
-            _log.error(f'unable connect to current url: [{url}], with status code of [{request.status_code}]')
-            _log.error(f'[{url}] connection error, response content [{request.content}]')
-        resp_dict['status_code'] = request.status_code
-        resp_dict['content'] = request.content
+            _log.error(
+                f"unable connect to current url: [{url}], with status code of [{request.status_code}]"
+            )
+            _log.error(
+                f"[{url}] connection error, response content [{request.content}]"
+            )
+        resp_dict["status_code"] = request.status_code
+        resp_dict["content"] = request.content
     except Exception as e:
-        _log.error(f'unable connect to current url: [{url}]\nwith error of [{str(e)}]')
-        resp_dict['error_msg'] = str(e)
+        _log.error(f"unable connect to current url: [{url}]\nwith error of [{str(e)}]")
+        resp_dict["error_msg"] = str(e)
     return resp_dict
 
 
 def url_validator(url):
-    """ standard validation function that check if provided string is valid url"""
+    """standard validation function that check if provided string is valid url"""
     regex = re.compile(
-        r'^(?:http|ftp)s?://'  # http:// or https://
-        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain...
-        r'localhost|'  # localhost...
-        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
-        r'(?::\d+)?'  # optional port
-        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+        r"^(?:http|ftp)s?://"  # http:// or https://
+        r"(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|"  # domain...
+        r"localhost|"  # localhost...
+        r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})"  # ...or ip
+        r"(?::\d+)?"  # optional port
+        r"(?:/?|[/?]\S+)$",
+        re.IGNORECASE,
+    )
 
     return re.match(regex, url) is not None
 
@@ -102,7 +115,7 @@ def generate_unique_fingerprint(bytes_array):
 
 
 def get_environment_variable(name, default_val):
-    # type: (str, object) -> object
+    # (str, object) -> object
     """
     Returns an environment variable in the type set by the default value.
     If environment variable is empty or cannot be converted to default_val type, function returns default_val
@@ -116,8 +129,12 @@ def get_environment_variable(name, default_val):
             try:
                 value = type(default_val)(value)
             except ValueError:
-                _log.warning('Failed to convert environment variable %s=%s to %s', name, str(value),
-                             type(default_val).__name__)
+                _log.warning(
+                    "Failed to convert environment variable %s=%s to %s",
+                    name,
+                    str(value),
+                    type(default_val).__name__,
+                )
                 value = default_val
 
     else:
@@ -126,12 +143,12 @@ def get_environment_variable(name, default_val):
 
 
 def to_bool(string, default):
-    # type: (str- bool) -> (bool)
+    # (str- bool) -> (bool)
     """
     This method convert string to bool - "True, "Yes", "1" are considered True
     """
     if string and string.strip():
-        return string.strip()[0].lower() in ['1', 't', 'y']
+        return string.strip()[0].lower() in ["1", "t", "y"]
     return default
 
 
@@ -142,7 +159,7 @@ def str_to_bytes(string):
     if string is None:
         return None
 
-    return string.encode('utf-8')
+    return string.encode("utf-8")
 
 
 def bytes_to_str(string):
@@ -152,7 +169,7 @@ def bytes_to_str(string):
     if string is None:
         return None
 
-    return string.decode('utf-8')
+    return string.decode("utf-8")
 
 
 def generate_uuid():
@@ -185,10 +202,16 @@ def generate_datatime_zulu(current=True, time_dict=None):
     :param time_dict: should be as example: {'year':2020, 'month':12, 'day':12, 'hour':12, 'minute':10,'second':10}
     """
     if current:
-        res = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')
+        res = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
     elif time_dict:
-        res = datetime.datetime(time_dict['year'], time_dict['month'], time_dict['day'], time_dict['hour'],
-                                time_dict['minute'], time_dict['second']).strftime('%Y-%m-%dT%H:%M:%SZ')
+        res = datetime.datetime(
+            time_dict["year"],
+            time_dict["month"],
+            time_dict["day"],
+            time_dict["hour"],
+            time_dict["minute"],
+            time_dict["second"],
+        ).strftime("%Y-%m-%dT%H:%M:%SZ")
     else:
         raise ValueError("Should provide current=True param or time dictionary value")
 
@@ -199,9 +222,10 @@ def zipdir(path, ziph):
     # ziph is zipfile handle
     for root, dirs, files in os.walk(path):
         for file in files:
-            ziph.write(os.path.join(root, file),
-                       os.path.relpath(os.path.join(root, file),
-                                       os.path.join(path, '..')))
+            ziph.write(
+                os.path.join(root, file),
+                os.path.relpath(os.path.join(root, file), os.path.join(path, "..")),
+            )
 
 
 def get_xml_as_dict(url, header=None, token=None):
@@ -210,17 +234,21 @@ def get_xml_as_dict(url, header=None, token=None):
     """
     time.sleep(100)
     try:
-        cert_dir = get_environment_variable('CERT_DIR', False)
+        cert_dir = get_environment_variable("CERT_DIR", False)
         if cert_dir:
-            response = requests.get(url + "?token=" + token, verify=cert_dir, timeout=120)
+            response = requests.get(
+                url + "?token=" + token, verify=cert_dir, timeout=120
+            )
         else:
             response = requests.get(url)
         dict_data = xmltodict.parse(response.content)
         return dict_data
 
     except Exception as e:
-        _log.error(f'Failed getting xml object from url [{url}] with error: {str(e)}')
-        raise Exception(f'Failed getting xml object from url [{url}] with error: {str(e)}')
+        _log.error(f"Failed getting xml object from url [{url}] with error: {str(e)}")
+        raise Exception(
+            f"Failed getting xml object from url [{url}] with error: {str(e)}"
+        )
 
 
 def retry(fun, max_tries=10):
@@ -231,4 +259,4 @@ def retry(fun, max_tries=10):
             return res
         except Exception:
             continue
-    raise TimeoutError(f'Tried max retries running function {fun}')
+    raise TimeoutError(f"Tried max retries running function {fun}")
