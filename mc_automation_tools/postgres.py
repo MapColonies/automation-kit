@@ -198,7 +198,7 @@ class PGClass:
         return res
 
     def update_multi_with_multi(
-        self, table_name, pk, column, values, type_pk, type_col
+            self, table_name, pk, column, values, type_pk, type_col
     ):
         """
         Insert multiple rows with one query
@@ -206,14 +206,14 @@ class PGClass:
         update_query = f"""with vals (i,j) as (values"""
         for v in values:
             update_query = (
-                update_query
-                + f""" (cast('{v[0]}' as {type_pk}),cast('{v[1]}' as {type_col})),"""
+                    update_query
+                    + f""" (cast('{v[0]}' as {type_pk}),cast('{v[1]}' as {type_col})),"""
             )
             # update_query = update_query + f""" ('{v[0]}' ,'{v[1]}'),"""
         update_query = update_query[:-1] + ")"
         update_query = (
-            update_query
-            + f""" update "{self.scheme}"."{table_name}" as my_table set "{column}" = vals.j from vals where my_table.{pk} = vals.i;"""
+                update_query
+                + f""" update "{self.scheme}"."{table_name}" as my_table set "{column}" = vals.j from vals where my_table.{pk} = vals.i;"""
         )
         # update = f"""update {table_name} set {column} = vals.j from vals where {table_name}.{pk} = vals.i;"""
 
@@ -226,7 +226,7 @@ class PGClass:
         cur.close()
 
     def get_rows_by_order(
-        self, table_name, order_key=None, order_desc=False, return_as_dict=False
+            self, table_name, order_key=None, order_desc=False, return_as_dict=False
     ):
         """
         This method will query for entire table rows order by specific parameter
@@ -260,12 +260,12 @@ class PGClass:
             raise e
 
     def get_rows_by_keys(
-        self,
-        table_name,
-        keys_values,
-        order_key=None,
-        order_desc=False,
-        return_as_dict=False,
+            self,
+            table_name,
+            keys_values,
+            order_key=None,
+            order_desc=False,
+            return_as_dict=False,
     ):
         """
         This method returns rows that suitable on several keys-values
@@ -354,18 +354,18 @@ class PGClass:
             raise e
         return res
 
-    def get_columns_by_like_statements(
-        self, columns, table_name, pk, identifiers, condition_param
-    ):
-        """
-            this method return custome columns from table where pk like regex convention
-            :param table_name: table name
-            :param columns: the selected columns
-            :param pk: primary key
-            :param identifiers : identifiers to the like statement
-            :param condition_param: OR or AND
 
-        select product_id, product_version from "RasterCatalogManager"."records" where "product_id" like 'test%' or product_id like 'shay_%' or product_id like 'danny%'
+    def get_columns_by_like_statements(self, columns, table_name, pk, identifiers, condition_param):
+        """
+        this method return custome columns from table where pk like regex convention
+        :param table_name: table name
+        :param columns: the selected columns
+        :param pk: primary key
+        :param identifiers : identifiers to the like statement
+        :param condition_param: OR or AND
+
+    select product_id, product_version from "RasterCatalogManager"."records" where "product_id" like 'test%' or product_id like 'shay_%' or product_id like 'danny%'
+
         """
         if len(identifiers) > 1:
             like_statement = ""
@@ -387,3 +387,25 @@ class PGClass:
             _log.error(str(e))
             raise e
         return res
+
+
+    def get_columns_by_pk_equality(self, columns, table_name, pk, pk_value):
+        """
+        This method return custom columns from the table where pk equal to the given value
+        :param table_name: table name
+        :param columns: the selected columns
+        :param pk: primary key
+        :param pk_value : value of the desired filed
+        """
+        command = f"""select {columns} from "{self.scheme}"."{table_name}" where {pk} = '{pk_value}' """
+        try:
+            cur = self.conn.cursor()
+            cur.execute(command)
+            res = cur.fetchall()
+            cur.close()
+        except Exception as e:
+            _log.error(str(e))
+            raise e
+        return res
+
+
