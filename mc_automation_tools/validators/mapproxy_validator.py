@@ -5,7 +5,9 @@ import json
 import logging
 import os
 
-from mc_automation_tools import base_requests, common, s3storage
+from mc_automation_tools import base_requests
+from mc_automation_tools import common
+from mc_automation_tools import s3storage
 from mc_automation_tools.configuration import config
 from mc_automation_tools.models import structs
 

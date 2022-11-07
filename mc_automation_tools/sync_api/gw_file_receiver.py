@@ -3,7 +3,8 @@ This module will wrap and provide api's functionality of layer spec api of sync 
 """
 import logging
 
-from mc_automation_tools import base_requests, common
+from mc_automation_tools import base_requests
+from mc_automation_tools import common
 from mc_automation_tools.configuration import config
 
 _log = logging.getLogger("mc_automation_tools.sync_api.gw_file_receiver")

@@ -2,7 +2,8 @@
 """
 This module wrapping agent api's restful functionality
 """
-from mc_automation_tools import base_requests, common
+from mc_automation_tools import base_requests
+from mc_automation_tools import common
 
 
 class DiscreteAgentApi:

@@ -8,7 +8,8 @@ import datetime
 import logging
 import os
 
-from mc_automation_tools import common, init_logger
+from mc_automation_tools import common
+from mc_automation_tools import init_logger
 
 logger = logging.getLogger("jmeter_records_parsers")
 

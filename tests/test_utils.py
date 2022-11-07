@@ -1,6 +1,6 @@
 """unittest module"""
-from mc_automation_tools import base_requests, common
-
+from mc_automation_tools import base_requests
+from mc_automation_tools import common
 
 
 def test_url_validation():
