@@ -28,7 +28,7 @@ entity_sample = {
     }
 }
 geo_json = json.dumps(entity_sample["geo_json"])
-entity_sample = json.dumps(entity_sample)
+# entity_sample = json.dumps(entity_sample) # Changed - fails on type
 uuid = "'acf8c600-423f-402c-815a-f986c34352ec'"
 
 # geo_json = entity_sample["geo_json"]
