@@ -1,5 +1,6 @@
 """This module will wrap access for azure's pv that raster ingestion based on - not for production testing"""
-from mc_automation_tools import base_requests, common
+from mc_automation_tools import base_requests
+from mc_automation_tools import common
 from mc_automation_tools.configuration import config
 
 
