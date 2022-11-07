@@ -6,7 +6,6 @@ import os
 import boto3
 import botocore
 import requests
-
 from mc_automation_tools.configuration import config
 
 _log = logging.getLogger("automation_tools.s3storage")

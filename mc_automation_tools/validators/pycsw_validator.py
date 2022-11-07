@@ -5,7 +5,6 @@ import logging
 
 import xmltodict
 from discrete_kit.validator.json_compare_pycsw import *
-
 from mc_automation_tools import base_requests
 from mc_automation_tools.configuration import config
 

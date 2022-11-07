@@ -6,7 +6,6 @@ import json
 import logging
 
 import requests
-
 from mc_automation_tools import common
 from mc_automation_tools.configuration import config
 
