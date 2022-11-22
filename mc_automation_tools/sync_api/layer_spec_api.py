@@ -5,8 +5,7 @@ import json
 import logging
 import time
 
-from mc_automation_tools import base_requests
-from mc_automation_tools import common
+from mc_automation_tools import base_requests, common
 from mc_automation_tools.configuration import config
 
 _log = logging.getLogger("mc_automation_tools.sync_api.layer_spec_api")

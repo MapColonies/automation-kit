@@ -8,18 +8,18 @@
 ### This pytonic package include useful sub-packages and implementation for variant manipulation of automation infrastructure.
 
 ### Include:
-1. base_request - wrapper for restful API's requests [post, get, etc..]
+1. base_request - wrapper for restful APIs requests [post, get, etc..]
 2. S3storage - wrapper of boto3 library for handling with S3 storage type
-3. Common - common utils for string manipulations, urls, storage, os, and data-types convertor
+3. Common - common utils for string manipulations, URLs, storage, os, and data-types convertor
 4. Jira - integration sub-package for connecting pytest results with jira's dashboard.
 5. PostGres support wrapping module that provide useful class and function working with pg
-6. MC-ingestion mutual API's wrappers:
-    * job manager api wrapper:
+6. MC-ingestion mutual APIs wrappers:
+    * job manager API wrapper:
         * Multiple API access
         * Automation utilities -> Job Follower[Example]
-    * overseer api wrapper
-    * agent api wrapper
+    * overseer API wrapper
+    * agent API wrapper
     * azure pvc handler -> automation internal service to mock NFS
-7. MC-sync mutual API's wrappers:
-    * layer spec api wrapper:
-        * Multiple API access as describe on layer spec api docs
+7. MC-sync mutual APIs wrappers:
+    * layer spec API wrapper:
+        * Multiple API access as describe on layer spec API docs

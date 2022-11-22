@@ -28,14 +28,24 @@ entity_sample = {
     }
 }
 geo_json = json.dumps(entity_sample["geo_json"])
-entity_sample = json.dumps(entity_sample)
+# entity_sample = json.dumps(entity_sample) # Changed - fails on type
 uuid = "'acf8c600-423f-402c-815a-f986c34352ec'"
 
 # geo_json = entity_sample["geo_json"]
 # geo_json= entity_sample
 command = (
-    f'INSERT INTO "v_buildings"("entity_id","layer_id","name","type",dateCreation,updateCreation,"polygon","json_object")'
-    f"VALUES({uuid},'416','building_1','building','{str(dt.now())}','{str(dt.now())}',ST_GeomFromGeoJSON('{geo_json}'),'{entity_sample}')"
+    f'INSERT INTO "v_buildings"("entity_id",'
+    f'"layer_id","name","type",'
+    f"dateCreation,updateCreation,"
+    f'"polygon",'
+    f'"json_object")'
+    f"VALUES({uuid},"
+    f"'416'"
+    f",'building_1'"
+    f",'building'"
+    f",'{str(dt.now())}'"
+    f",'{str(dt.now())}'"
+    f",ST_GeomFromGeoJSON('{geo_json}'),'{entity_sample}')"
 )
 
 

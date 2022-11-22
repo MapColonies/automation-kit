@@ -8,8 +8,7 @@ import datetime
 import logging
 import os
 
-from mc_automation_tools import common
-from mc_automation_tools import init_logger
+from mc_automation_tools import common, init_logger
 
 logger = logging.getLogger("jmeter_records_parsers")
 
@@ -159,4 +158,5 @@ def generate_wmts_jtl(list_url):
 result = generate_wmts_jtl(list_url)
 # result = generate_wms_csv(list_url)
 # result = generate_wmts_csv(list_url)
-result = write_dict_to_csv(result, "/tmp", "wmts")
+# result = write_dict_to_csv(result, "/tmp", "wmts")
+write_dict_to_csv(result, "/tmp", "wmts")

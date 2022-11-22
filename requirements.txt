@@ -9,11 +9,11 @@ pandas
 paramiko
 pre-commit
 pre-commit
-psycopg2-binary==2.8.6
+psycopg2-binary
 PyJWT
 python-graphql-client
-requests~=2.25.0
-setuptools~=50.3.2
+requests
+setuptools
 shapely
 wheel
 xmltodict

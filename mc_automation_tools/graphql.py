@@ -2,11 +2,11 @@
 This module wrap and provide pytonic client interface to integrate with graphql server
 """
 import logging
+import time
 
-from python_graphql_client import GraphqlClient
-
-from mc_automation_tools import common
+# from mc_automation_tools import common
 from mc_automation_tools.configuration import config
+from python_graphql_client import GraphqlClient
 
 # from graphqlclient import GraphQLClient
 
