@@ -1,12 +1,12 @@
 boto3~=1.16.43
 botocore~=1.19.43
-geopandas
+geopandas~=0.11.1
 gpval
 graphqlclient
 mc-discrete-kit>=0.0.21
 ogr
 pandas
-paramiko
+paramiko~=2.11.0
 pre-commit
 pre-commit
 psycopg2-binary==2.8.6
@@ -14,6 +14,7 @@ PyJWT
 python-graphql-client
 requests~=2.25.0
 setuptools~=50.3.2
-shapely
+shapely~=1.8.4
 wheel
-xmltodict
+xmltodict~=0.13.0
+jsonschema~=4.16.0
