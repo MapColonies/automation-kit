@@ -9,9 +9,9 @@ import posixpath
 import re
 import time
 import uuid
+
 import requests
 import xmltodict
-import xml.etree.ElementTree as ET
 
 _log = logging.getLogger("automation_tools.common")
 
@@ -260,31 +260,3 @@ def retry(fun, max_tries=10):
         except Exception:
             continue
     raise TimeoutError(f"Tried max retries running function {fun}")
-
-
-def find_value_in_nested_xml(element, value):
-    """
-    Recursively search for a specific value within a nested XML structure.
-    :param element: (xml.etree.ElementTree.Element) The current XML element to search within.
-    :param value: (str): The value to search for.
-    :return: bool: True if the value is found, False otherwise.
-
-    """
-    if element.text == value:
-        return True
-    for child in element:
-        if find_value_in_nested_xml(child, value):
-            return True
-    return False
-
-
-def find_value_in_xml(xml_string, value):
-    """
-    Search for a specific value within an XML document.
-    :param xml_string :(str)The XML content as a string.
-    :param value: (str): The value to search for.
-    :return:
-    bool: True if the value is found, False otherwise.
-    """
-    root = ET.fromstring(xml_string)
-    return find_value_in_nested_xml(root, value)
