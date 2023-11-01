@@ -4,11 +4,11 @@ This module provide data validation utils testing data on mapproxy data
 import json
 import logging
 import os
-
 from mc_automation_tools import base_requests, common, s3storage
-from mc_automation_tools.configuration import config
 from mc_automation_tools.models import structs
 from mc_automation_tools.configuration.config import cache_valid_value
+from mc_automation_tools.common import validate_cache_control
+
 
 
 _log = logging.getLogger("mc_automation_tools.validators.mapproxy_validator")
