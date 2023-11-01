@@ -4,11 +4,13 @@ This module provide data validation utils testing data on mapproxy data
 import json
 import logging
 import os
-from mc_automation_tools import base_requests
-from mc_automation_tools import common
-from mc_automation_tools import s3storage
+
+from mc_automation_tools import base_requests, common, s3storage
 from mc_automation_tools.configuration import config
 from mc_automation_tools.models import structs
+from server_automation.raster_utilities.functions import validate_cache_control
+from server_automation.configuration.config import cache_valid_value
+
 
 _log = logging.getLogger("mc_automation_tools.validators.mapproxy_validator")
 
@@ -69,6 +71,8 @@ class MapproxyHandler:
             links[group]["is_valid"] = {}
 
             # check that wms include the new layer on capabilities
+            # WMS_FLAG=None
+            # if WMS_FLAG is not None:
             if os.getenv("WMS_FLAG") is not None:
                 links[group]["is_valid"][
                     structs.MapProtocolType.WMS.value
@@ -191,7 +195,7 @@ class MapproxyHandler:
         return exists
 
     def validate_wmts_layer(
-            self, wmts_template_url, wmts_tile_matrix_set, layer_name, layer_id, header, token
+            self, wmts_template_url, wmts_tile_matrix_set, layer_name, layer_id, header,token
     ):
         """
         This method will provide if wmts layer protocol provide access to tiles
@@ -256,7 +260,12 @@ class MapproxyHandler:
             )  # formatted url for testing
             wmts_template_url += f"?token={token}"
             resp = base_requests.send_get_request(wmts_template_url, header=header)
-            url_valid = resp.status_code == structs.ResponseCode.Ok.value
+            cache_header= resp.headers.get("cache-control")
+            is_valid_cache_control = validate_cache_control(cache_control_value=cache_header, expected_max_age=cache_valid_value)
+            url_valid = resp.status_code == structs.ResponseCode.Ok.value and is_valid_cache_control["is_valid"]
+            cache_error = is_valid_cache_control["reason"] if not is_valid_cache_control["is_valid"] else ''
+            print(f"Cache control validation error : {cache_error}")
+
         except Exception as e:
             _log.info(f"Failed wmts validation with error: [{str(e)}]")
             return False
@@ -341,8 +350,7 @@ class MapproxyHandler:
     #                 config.TEST_ENV == config.EnvironmentTypes.QA.name
     #                 or config.TEST_ENV == config.EnvironmentTypes.DEV.name
     #         ):
-    #             # todo: delete this s3_conn initialization and pass the exiting from the s3 condition
-    #             s3_conn = s3storage.S3Client(
+    #             s3_conn = s3.S3Client(
     #                 config.S3_END_POINT, config.S3_ACCESS_KEY, config.S3_SECRET_KEY
     #             )
     #             list_of_tiles = s3_conn.list_folder_content(
@@ -385,4 +393,3 @@ class MapproxyHandler:
     #             break
     #     _log.info(f"validation of discrete layers on mapproxy status:\n" f"{results}")
     #     return {"validation": validation, "reason": results}
-

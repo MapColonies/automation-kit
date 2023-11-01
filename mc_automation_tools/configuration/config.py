@@ -119,3 +119,5 @@ zoom_level_dict = {
 }
 
 TEST_ENV = get_environment_variable("name", EnvironmentTypes.QA.name)
+
+cache_valid_value = 3600
