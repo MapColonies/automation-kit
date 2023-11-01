@@ -8,8 +8,7 @@ import os
 from mc_automation_tools import base_requests, common, s3storage
 from mc_automation_tools.configuration import config
 from mc_automation_tools.models import structs
-from server_automation.raster_utilities.functions import validate_cache_control
-from server_automation.configuration.config import cache_valid_value
+from mc_automation_tools.configuration.config import cache_valid_value
 
 
 _log = logging.getLogger("mc_automation_tools.validators.mapproxy_validator")
