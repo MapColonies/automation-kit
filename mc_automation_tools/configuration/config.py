@@ -1,6 +1,10 @@
 import enum
+import os
+
+from discrete_kit.configuration.config import EnvironmentTypes
 
 from mc_automation_tools import common
+from mc_automation_tools.common import get_environment_variable
 
 
 class S3Provider:
@@ -113,3 +117,7 @@ zoom_level_dict = {
     21: 0.000000335276126861572,
     22: 0.000000167638063430786,
 }
+
+TEST_ENV = get_environment_variable("name", EnvironmentTypes.QA.name)
+
+cache_valid_value = 3600
