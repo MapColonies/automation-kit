@@ -19,6 +19,7 @@ class MapproxyHandler:
     This class provide validation utility against data on mapproxy
     """
 
+
     def __init__(
             self,
             entrypoint_url,

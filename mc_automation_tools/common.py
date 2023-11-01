@@ -261,6 +261,7 @@ def retry(fun, max_tries=10):
             continue
     raise TimeoutError(f"Tried max retries running function {fun}")
 
+
 def validate_cache_control(cache_control_value: str, expected_max_age: int):
     """
     This function will validate the cache control max-age value
