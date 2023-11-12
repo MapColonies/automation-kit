@@ -260,3 +260,55 @@ def retry(fun, max_tries=10):
         except Exception:
             continue
     raise TimeoutError(f"Tried max retries running function {fun}")
+
+
+def validate_cache_control(cache_control_value: str, expected_max_age: int):
+    """
+    This function will validate the cache control max-age value
+    :param cache_control_value: the cache-control value that return from tile request
+    :param expected_max_age: the valid value of max age
+    :return:
+    validation_result dict
+    """
+    validation_result = {"is_valid": True, "reason": []}
+
+    # Split the input string by commas and strip whitespace
+    cache_control_parameters = [part.strip() for part in cache_control_value.split(',')]
+    conditions = {"max-age": False, "s-maxage": False}
+
+    for cache_parameter in cache_control_parameters:
+        try:
+            if '=' in cache_parameter:
+                key, value = [item.strip() for item in cache_parameter.split('=')]
+                # Try to evaluate the cache_parameter as a literal using ast.literal_eval()
+                if key == "max-age":
+                    conditions[key] = True
+                    max_age_value = int(value)
+                    if max_age_value != expected_max_age:
+                        validation_result["is_valid"] = False
+                        validation_result[
+                            "reason"].append(f'max-age value is:{max_age_value}, expected_max_age:{expected_max_age}')
+                elif key == "s-maxage":
+                    conditions[key] = True
+                    s_maxage_value = int(value)
+                    if s_maxage_value != expected_max_age:
+                        validation_result["is_valid"] = False
+                        validation_result[
+                            "reason"].append(
+                            f'server max-age value is:{s_maxage_value}, expected_max_age:{expected_max_age}')
+
+        except (SyntaxError, ValueError) as error:
+            # If ast.literal_eval() fails, skip this cache_parameter
+            validation_result["is_valid"] = False
+            validation_result["reason"].append(error)
+
+    failed_conditions = [key for key, value in conditions.items() if not value]
+    if len(failed_conditions) == 1:
+        validation_result["is_valid"] = False
+        validation_result["reason"].append(f"{failed_conditions[0]} is missing on cache control header")
+    elif len(failed_conditions) == 2:
+        validation_result["is_valid"] = False
+        validation_result["reason"].append(
+            f"{failed_conditions[0]} and {failed_conditions[1]} are missing on cache control header")
+
+    return validation_result
