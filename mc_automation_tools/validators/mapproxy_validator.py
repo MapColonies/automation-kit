@@ -9,8 +9,6 @@ from mc_automation_tools.models import structs
 from mc_automation_tools.configuration.config import cache_valid_value
 from mc_automation_tools.common import validate_cache_control
 
-
-
 _log = logging.getLogger("mc_automation_tools.validators.mapproxy_validator")
 
 
@@ -18,7 +16,6 @@ class MapproxyHandler:
     """
     This class provide validation utility against data on mapproxy
     """
-
 
     def __init__(
             self,
@@ -57,7 +54,7 @@ class MapproxyHandler:
         links = self.extract_from_pycsw(pycsw_records)
         for product_type in links.keys():
             for li in links[product_type]:
-                if li == "WMS":
+                if li == "WMS" or li=='WMTS_KVP':
                     links[product_type][li] += f"&token={token}"
                 elif li == "WMTS_BASE":
                     links[product_type][li] += f"/{product_id}-{product_type}"
@@ -95,13 +92,29 @@ class MapproxyHandler:
                 header=header,
                 token=token,
             )
-
             if not links[group]["is_valid"][structs.MapProtocolType.WMTS.value]:
                 _log.error(
                     f"WMTS layer not found on capabilities, layer name: [{layer_name}]"
                 )
                 links[group]["is_valid"][
                     structs.MapProtocolType.WMTS_LAYER.value
+                ] = False
+
+            links[group]["is_valid"][
+                structs.MapProtocolType.WMTS_KVP.value
+            ] = self.validate_wmts_kvp(
+                links[group][structs.MapProtocolType.WMTS_KVP.value],
+                layer_name,
+                header=header,
+                token=token,
+            )
+
+            if not links[group]["is_valid"][structs.MapProtocolType.WMTS_KVP.value]:
+                _log.error(
+                    f"WMTS layer not found on KVP capabilities, layer name: [{layer_name}]"
+                )
+                links[group]["is_valid"][
+                    structs.MapProtocolType.WMTS_KVP.value
                 ] = False
 
             else:
@@ -142,7 +155,7 @@ class MapproxyHandler:
             f"validation of discrete layers on mapproxy status:\n"
             f"{json.dumps(links, indent=4)}"
         )
-        return {"validation": validation, "reason": links}
+        return {"validation": validation, "reason": links[product_type]}
 
     @classmethod
     def validate_wms(cls, wms_capabilities_url, layer_name, header, token=None):
@@ -194,8 +207,33 @@ class MapproxyHandler:
         ]
         return exists
 
+    @classmethod
+    def validate_wmts_kvp(cls, wmts_kvp_url, layer_name, header, token=None):
+        """
+        This method will provide if layer exists in wmts kvp capabilities or not
+        :param wmts_kvp_url: url for all wmts capabilities on server (mapproxy)
+        :param layer_name: orthophoto layer id
+        """
+
+        try:
+            if token:
+                wmts_kvp_capabilities = common.get_xml_as_dict(wmts_kvp_url, token)
+            else:
+                wmts_kvp_capabilities = common.get_xml_as_dict(
+                    wmts_kvp_url, header
+                )
+        except Exception as e:
+            _log.info(f"Failed wmts kvp validation with error: [{str(e)}]")
+            return False
+
+        exists = layer_name in [
+            layer["ows:Title"]
+            for layer in wmts_kvp_capabilities["Capabilities"]["Contents"]["Layer"]
+        ]
+        return exists
+
     def validate_wmts_layer(
-            self, wmts_template_url, wmts_tile_matrix_set, layer_name, layer_id, header,token
+            self, wmts_template_url, wmts_tile_matrix_set, layer_name, layer_id, header, token
     ):
         """
         This method will provide if wmts layer protocol provide access to tiles
@@ -260,8 +298,9 @@ class MapproxyHandler:
             )  # formatted url for testing
             wmts_template_url += f"?token={token}"
             resp = base_requests.send_get_request(wmts_template_url, header=header)
-            cache_header= resp.headers.get("cache-control")
-            is_valid_cache_control = validate_cache_control(cache_control_value=cache_header, expected_max_age=cache_valid_value)
+            cache_header = resp.headers.get("cache-control")
+            is_valid_cache_control = validate_cache_control(cache_control_value=cache_header,
+                                                            expected_max_age=cache_valid_value)
             url_valid = resp.status_code == structs.ResponseCode.Ok.value and is_valid_cache_control["is_valid"]
             cache_error = is_valid_cache_control["reason"] if not is_valid_cache_control["is_valid"] else ''
             print(f"Cache control validation error : {cache_error}")
