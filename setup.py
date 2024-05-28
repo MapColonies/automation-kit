@@ -41,7 +41,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/MapColonies/automation-kit.git",
     packages=find_packages(),
-    install_requires=requirements ,
+    install_requires=requirements,
     version="1.2.59",  # Set the version to the desired tag
     classifiers=[
         "Programming Language :: Python :: 3",

@@ -177,7 +177,7 @@ def send_delete_request(url, params=None, data=None):
                 )
             else:
                 resp = requests.delete(
-                    url, data=params, verify=config.CERT_DIR, timeout=120
+                    url, data=data, verify=config.CERT_DIR, timeout=120
                 )
         _log.debug("response code: %d", resp.status_code)
         _log.debug("response message: %s", resp.content)
