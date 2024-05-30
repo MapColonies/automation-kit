@@ -16,8 +16,8 @@ _log = logging.getLogger("mc_automation_tools.requests")
 # ToDo : Change Logic?
 def send_post_binary_request(
         url,
-        data={},
-        header={"content-type": "application/json", "accept": "*/*"},
+        data=None,
+        header=None,
         params=None,
 ):
     """
@@ -27,6 +27,10 @@ def send_post_binary_request(
     header is optional, by default:content-type': 'application/json', "accept": "*/*
     """
 
+    if data is None:
+        data = {}
+    if header is None:
+        header = {"content-type": "application/json", "accept": "*/*"}
     try:
         if not config.CERT_DIR:
             resp = requests.post(url=url, data=data, headers=header, params=params)
@@ -51,9 +55,11 @@ def send_post_binary_request(
     return resp
 
 
-def send_post_request(url, body={}, header=None, params=None):
+def send_post_request(url, body=None, header=None, params=None):
     """send http post request by providing post full url + body , header is optional, by default:content-type': 'application/json',
     "accept": "*/*"""
+    if body is None:
+        body = {}
     common.url_validator(url)
     if not header:
         header = {"content-type": "application/json", "accept": "*/*"}
