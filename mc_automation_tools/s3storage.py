@@ -2,7 +2,6 @@
 """This module provide usefull class that wrapping S3 and provide basic functionality [read and write] with S3 objects"""
 import logging
 import os
-
 import boto3
 import botocore
 import requests
@@ -237,6 +236,19 @@ class S3Client:
         bucket = self._resource.Bucket(bucket_name)
         results = [
             name.key for name in bucket.objects.filter(Prefix=f"{directory_name}/")
+        ]
+        return results
+
+    def get_folder_last_modified_content(self, bucket_name, directory_name):
+        """
+        This method will list all exists items on provided object
+        :param bucket_name: str -> bucket of object
+        :param directory_name: object key -> path to object
+        :return: list -> list of files included in object key
+        """
+        bucket = self._resource.Bucket(bucket_name)
+        results = [
+            name.last_modified for name in bucket.objects.filter(Prefix=f"{directory_name}/")
         ]
         return results
 
