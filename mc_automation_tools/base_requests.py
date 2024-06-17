@@ -12,12 +12,13 @@ from mc_automation_tools.configuration import config
 
 _log = logging.getLogger("mc_automation_tools.requests")
 
+
 # ToDo : Change Logic?
 def send_post_binary_request(
-    url,
-    data={},
-    header={"content-type": "application/json", "accept": "*/*"},
-    params=None,
+        url,
+        data=None,
+        header=None,
+        params=None,
 ):
     """
     This method will execute similar post http request execution but,
@@ -26,6 +27,10 @@ def send_post_binary_request(
     header is optional, by default:content-type': 'application/json', "accept": "*/*
     """
 
+    if data is None:
+        data = {}
+    if header is None:
+        header = {"content-type": "application/json", "accept": "*/*"}
     try:
         if not config.CERT_DIR:
             resp = requests.post(url=url, data=data, headers=header, params=params)
@@ -50,9 +55,11 @@ def send_post_binary_request(
     return resp
 
 
-def send_post_request(url, body={}, header=None, params=None):
+def send_post_request(url, body=None, header=None, params=None):
     """send http post request by providing post full url + body , header is optional, by default:content-type': 'application/json',
     "accept": "*/*"""
+    if body is None:
+        body = {}
     common.url_validator(url)
     if not header:
         header = {"content-type": "application/json", "accept": "*/*"}
@@ -145,7 +152,7 @@ def send_put_request(url, data, header=None):
     return resp
 
 
-def send_delete_request(url, params=None):
+def send_delete_request(url, params=None, data=None):
     """
     send http delete request by providing delete url + query parameters
     :param url: url to get request
@@ -156,11 +163,28 @@ def send_delete_request(url, params=None):
     try:
 
         if not config.CERT_DIR:
-            resp = requests.delete(url, data=params, timeout=120)
+            if params is not None and data is not None:
+                raise ValueError("Use either params or data for DELETE requests, not both.")
+
+            if params:
+                resp = requests.delete(url, params=params, timeout=120)
+            else:
+                resp = requests.delete(url, data=data, timeout=120)
+            _log.debug("response code: %d", resp.status_code)
+            _log.debug("response message: %s", resp.content)
+
+            # resp = requests.delete(url, data=params, timeout=120)
         else:
-            resp = requests.delete(
-                url, data=params, verify=config.CERT_DIR, timeout=120
-            )
+            if params is not None and data is not None:
+                raise ValueError("Use either params or data for DELETE requests, not both.")
+            if params:
+                resp = requests.delete(
+                    url, params=params, verify=config.CERT_DIR, timeout=120
+                )
+            else:
+                resp = requests.delete(
+                    url, data=data, verify=config.CERT_DIR, timeout=120
+                )
         _log.debug("response code: %d", resp.status_code)
         _log.debug("response message: %s", resp.content)
 
