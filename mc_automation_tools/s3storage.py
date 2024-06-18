@@ -234,12 +234,7 @@ class S3Client:
         :return: list -> list of files included in object key
         """
         bucket = self._resource.Bucket(bucket_name)
-        results =[]
-        for obj in bucket.objects.filter(Prefix=f"{directory_name}/"):
-            results.append({
-                'key': obj.key,
-                'last_modified': obj.last_modified
-            })
+        results = [name.key for name in bucket.objects.filter(Prefix=f"{directory_name}/")]
         return results
 
     def get_folder_last_modified_content(self, bucket_name, directory_name):
