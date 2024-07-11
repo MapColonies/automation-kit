@@ -54,7 +54,7 @@ class MapproxyHandler:
         links = self.extract_from_pycsw(pycsw_records)
         for product_type in links.keys():
             for li in links[product_type]:
-                if li == "WMS" or li=='WMTS_KVP':
+                if li == "WMS" or li == 'WMTS_KVP':
                     links[product_type][li] += f"&token={token}"
                 elif li == "WMTS_BASE":
                     links[product_type][li] += f"/{product_id}-{product_type}"
@@ -244,13 +244,9 @@ class MapproxyHandler:
         splited_layer_name = layer_name.split("-")
         product_id = splited_layer_name[0]
         product_version = splited_layer_name[1]
-        if product_version == "Orthophoto" or product_version == "OrthophotoHistory" or product_version == "OrthophotoBest":
-            object_key = layer_id.split("/")[0]
-            # object_key = layer_id
-        else:
-            # object_key = "/".join([product_id, product_version])
-            object_key = os.path.join(product_id, product_version)
 
+        object_key = layer_id.split("/")[0]
+            # object_key = layer_id
         try:
 
             # check access to random tile by wmts_layer url
@@ -302,8 +298,9 @@ class MapproxyHandler:
             is_valid_cache_control = validate_cache_control(cache_control_value=cache_header,
                                                             expected_max_age=cache_valid_value)
             url_valid = resp.status_code == structs.ResponseCode.Ok.value and is_valid_cache_control["is_valid"]
-            cache_error = is_valid_cache_control["reason"] if not is_valid_cache_control["is_valid"] else ''
-            print(f"Cache control validation error : {cache_error}")
+            cache_error = is_valid_cache_control["reason"] if not is_valid_cache_control[
+                "is_valid"] else 'Cache validation passed'
+            print(f"Cache control validation status : {cache_error}")
 
         except Exception as e:
             _log.info(f"Failed wmts validation with error: [{str(e)}]")

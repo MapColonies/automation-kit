@@ -173,7 +173,7 @@ class PycswHandler:
                     )
 
                 records = xmltodict.parse(resp.content)
-                cuurent_records = records["csw:GetRecordsResponse"][
+                current_records = records["csw:GetRecordsResponse"][
                     "csw:SearchResults"
                 ]["mc:MCRasterRecord"]
                 params["startPosition"] = records["csw:GetRecordsResponse"][
@@ -184,7 +184,11 @@ class PycswHandler:
                         "@nextRecord"
                     ]
                 )
-                records_list = records_list + cuurent_records
+                if not isinstance(current_records, list):
+                    print(f"Current_records type is {type(current_records)}: value: {current_records}")
+                    current_records = [current_records]
+                    records_list = records_list + current_records
+                records_list = records_list + current_records
 
         except Exception as e:
             raise Exception(
