@@ -244,13 +244,7 @@ class MapproxyHandler:
         splited_layer_name = layer_name.split("-")
         product_id = splited_layer_name[0]
         product_version = splited_layer_name[1]
-        if product_version == "Orthophoto" or product_version == "OrthophotoHistory" or product_version == "OrthophotoBest":
-            object_key = layer_id.split("/")[0]
-            # object_key = layer_id
-        else:
-            # object_key = "/".join([product_id, product_version])
-            object_key = os.path.join(product_id, product_version)
-
+        object_key = layer_id.split("/")[0]
         try:
 
             # check access to random tile by wmts_layer url
