@@ -5,7 +5,7 @@ This module provide data validation utils testing data on pycsw [catalog] data
 import logging
 
 import xmltodict
-from discrete_kit.validator.json_compare_pycsw import *
+from discrete_kit.validator.json_compare_pycsw import validate_pycsw_with_shape_json
 
 from mc_automation_tools import base_requests
 from mc_automation_tools.configuration import config

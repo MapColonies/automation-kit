@@ -4,8 +4,9 @@ This is mc-automation-board
 
 import json
 import os
-
 import streamlit as st
+from PIL import Image
+
 
 
 CONF_FILE = "/home/ronenk1/dev/automation-kit/configuration.json"
@@ -18,7 +19,6 @@ if not CONF_FILE:
 with open(CONF_FILE, "r") as fp:
     conf = json.load(fp)
 
-from PIL import Image
 
 image = Image.open("mapcolonies_logo.png")
 st.image(image, width=None)

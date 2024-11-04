@@ -243,9 +243,9 @@ class MapproxyHandler:
         :param wmts_tile_matrix_set: properties of matrix set
         :param layer_name: orthophoto layer id -> "<product_id>-<product_version>"
         """
-        splited_layer_name = layer_name.split("-")
-        product_id = splited_layer_name[0]
-        product_version = splited_layer_name[1]
+        # splited_layer_name = layer_name.split("-")
+        # product_id = splited_layer_name[0]
+        # product_version = splited_layer_name[1]
 
         object_key = layer_id.split("/")[0]
         # object_key = layer_id
