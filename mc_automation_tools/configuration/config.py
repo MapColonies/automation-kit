@@ -1,5 +1,4 @@
 import enum
-import os
 
 from discrete_kit.configuration.config import EnvironmentTypes
 

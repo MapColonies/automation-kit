@@ -1,5 +1,6 @@
 # pylint: disable=line-too-long,invalid-name
 """This module provide usefull class that wrapping S3 and provide basic functionality [read and write] with S3 objects"""
+
 import logging
 import os
 import boto3
@@ -64,7 +65,7 @@ class S3Client:
         """
         This method add new bucket according to provided name
         """
-        if not self._resource.Bucket(bucket_name) in self._resource.buckets.all():
+        if self._resource.Bucket(bucket_name) not in self._resource.buckets.all():
             self._resource.create_bucket(Bucket=bucket_name)
             _log.info("New bucket created with name: %s", bucket_name)
 
@@ -82,7 +83,7 @@ class S3Client:
         """
         This method empty given bucket and delete bucket
         """
-        if not self._resource.Bucket(bucket_name) in self._resource.buckets.all():
+        if self._resource.Bucket(bucket_name) not in self._resource.buckets.all():
             raise FileNotFoundError(
                 "Bucket with name: [%s] not exist on s3, failed on deletion"
                 % bucket_name
@@ -95,7 +96,7 @@ class S3Client:
         """
         This method empty the given bucket without deletion of bucket
         """
-        if not self._resource.Bucket(bucket_name) in self._resource.buckets.all():
+        if self._resource.Bucket(bucket_name) not in self._resource.buckets.all():
             raise FileNotFoundError(
                 "Bucket with name: [%s] not exist on s3, failed on deletion"
                 % bucket_name
@@ -138,12 +139,12 @@ class S3Client:
         Generate new download url from S3 according to specific bucket and object_key.
         Add new key (object_key) into download_urls dictionary
         """
-        self._download_urls[
-            ":".join([bucket, object_key])
-        ] = self._client.generate_presigned_url(
-            "get_object",
-            Params={"Bucket": bucket, "Key": object_key},
-            ExpiresIn=config.S3_DOWNLOAD_EXPIRATION_TIME,
+        self._download_urls[":".join([bucket, object_key])] = (
+            self._client.generate_presigned_url(
+                "get_object",
+                Params={"Bucket": bucket, "Key": object_key},
+                ExpiresIn=config.S3_DOWNLOAD_EXPIRATION_TIME,
+            )
         )
 
     def is_bucket_exists(self, bucket_name):
@@ -181,20 +182,18 @@ class S3Client:
             return True
         resp = {}
         try:
-            paginator = self._client.get_paginator('list_objects_v2')
-            pages = paginator.paginate(
-                Bucket=bucket_name, Prefix=object_key
-            )
+            paginator = self._client.get_paginator("list_objects_v2")
+            pages = paginator.paginate(Bucket=bucket_name, Prefix=object_key)
             for page in pages:
                 delete_keys = {"Objects": []}
                 delete_keys["Objects"] = [
-                    {"Key": k}
-                    for k in [obj["Key"]
-                        for obj in page['Contents']]
+                    {"Key": k} for k in [obj["Key"] for obj in page["Contents"]]
                 ]
-                resp.update(self._resource.meta.client.delete_objects(
-                    Bucket=bucket_name, Delete=delete_keys
-                ))
+                resp.update(
+                    self._resource.meta.client.delete_objects(
+                        Bucket=bucket_name, Delete=delete_keys
+                    )
+                )
             return resp
 
         except botocore.exceptions.ClientError as e:
@@ -211,7 +210,7 @@ class S3Client:
         """
         Validate if some file exists on specific bucket in OS based on provided object key and bucket name
         """
-        if not self._resource.Bucket(bucket_name) in self._resource.buckets.all():
+        if self._resource.Bucket(bucket_name) not in self._resource.buckets.all():
             _log.debug("Bucket with name: [%s] not exist on s3", bucket_name)
             return False
 
@@ -237,7 +236,9 @@ class S3Client:
         :return: list -> list of files included in object key
         """
         bucket = self._resource.Bucket(bucket_name)
-        results = [name.key for name in bucket.objects.filter(Prefix=f"{directory_name}/")]
+        results = [
+            name.key for name in bucket.objects.filter(Prefix=f"{directory_name}/")
+        ]
         return results
 
     def get_folder_last_modified_content(self, bucket_name, directory_name):
@@ -250,10 +251,7 @@ class S3Client:
         results = []
         bucket = self._resource.Bucket(bucket_name)
         for obj in bucket.objects.filter(Prefix=f"{directory_name}/"):
-            results.append({
-                'key': obj.key,
-                'last_modified': obj.last_modified
-            })
+            results.append({"key": obj.key, "last_modified": obj.last_modified})
 
         return results
 

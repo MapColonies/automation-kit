@@ -1,15 +1,14 @@
 """
- - This module parsing and generating recording output and provide useful data options
- - compatible with jmeter version 5.3 output records files
- - compatible for mapproxy
+- This module parsing and generating recording output and provide useful data options
+- compatible with jmeter version 5.3 output records files
+- compatible for mapproxy
 """
+
 import csv
-import datetime
 import logging
 import os
 
 from mc_automation_tools import common
-from mc_automation_tools import init_logger
 
 logger = logging.getLogger("jmeter_records_parsers")
 

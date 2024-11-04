@@ -25,7 +25,6 @@
 #     python_requires=">=3.6",
 # )
 from setuptools import setup, find_packages
-import setuptools
 
 with open("requirements.txt") as f:
     requirements = f.read().splitlines()

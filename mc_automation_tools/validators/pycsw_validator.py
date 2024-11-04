@@ -1,6 +1,7 @@
 """
 This module provide data validation utils testing data on pycsw [catalog] data
 """
+
 import logging
 
 import xmltodict
@@ -185,7 +186,9 @@ class PycswHandler:
                     ]
                 )
                 if not isinstance(current_records, list):
-                    print(f"Current_records type is {type(current_records)}: value: {current_records}")
+                    print(
+                        f"Current_records type is {type(current_records)}: value: {current_records}"
+                    )
                     current_records = [current_records]
                     records_list = records_list + current_records
                 records_list = records_list + current_records

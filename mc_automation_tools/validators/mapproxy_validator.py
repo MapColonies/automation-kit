@@ -1,6 +1,7 @@
 """
 This module provide data validation utils testing data on mapproxy data
 """
+
 import json
 import logging
 import os
@@ -18,12 +19,12 @@ class MapproxyHandler:
     """
 
     def __init__(
-            self,
-            entrypoint_url,
-            tiles_storage_provide,
-            grid_origin="ul",
-            s3_credential=None,
-            nfs_tiles_url=None,
+        self,
+        entrypoint_url,
+        tiles_storage_provide,
+        grid_origin="ul",
+        s3_credential=None,
+        nfs_tiles_url=None,
     ):
         self.__entrypoint_url = entrypoint_url
         self.__tiles_storage_provide = tiles_storage_provide
@@ -32,14 +33,14 @@ class MapproxyHandler:
         self.__nfs_tiles_url = nfs_tiles_url
 
     def validate_layer_from_pycsw(
-            self,
-            pycsw_records,
-            product_id,
-            product_version,
-            layer_id,
-            header=None,
-            WMS_FLAG=None,
-            token=None,
+        self,
+        pycsw_records,
+        product_id,
+        product_version,
+        layer_id,
+        header=None,
+        WMS_FLAG=None,
+        token=None,
     ):
         """
         This method will extract the url's of mapproxy and validate access to new layer
@@ -54,7 +55,7 @@ class MapproxyHandler:
         links = self.extract_from_pycsw(pycsw_records)
         for product_type in links.keys():
             for li in links[product_type]:
-                if li == "WMS" or li == 'WMTS_KVP':
+                if li == "WMS" or li == "WMTS_KVP":
                     links[product_type][li] += f"&token={token}"
                 elif li == "WMTS_BASE":
                     links[product_type][li] += f"/{product_id}-{product_type}"
@@ -62,8 +63,7 @@ class MapproxyHandler:
                     links[product_type][li] += f"?token={token}"
 
         for group in links.keys():
-            layer_name = "-".join(
-                [product_id, group])
+            layer_name = "-".join([product_id, group])
             ## set state results per layer group and type
             links[group]["is_valid"] = {}
 
@@ -71,51 +71,49 @@ class MapproxyHandler:
             # WMS_FLAG=None
             # if WMS_FLAG is not None:
             if os.getenv("WMS_FLAG") is not None:
-                links[group]["is_valid"][
-                    structs.MapProtocolType.WMS.value
-                ] = self.validate_wms(
-                    links[group][structs.MapProtocolType.WMS.value],
-                    layer_name,
-                    header=header,
-                    token=token,
+                links[group]["is_valid"][structs.MapProtocolType.WMS.value] = (
+                    self.validate_wms(
+                        links[group][structs.MapProtocolType.WMS.value],
+                        layer_name,
+                        header=header,
+                        token=token,
+                    )
                 )
                 if not links[group]["is_valid"][structs.MapProtocolType.WMS.value]:
                     _log.error(
                         f"WMS layer not found on capabilities, layer name: [{layer_name}]"
                     )
 
-            links[group]["is_valid"][
-                structs.MapProtocolType.WMTS.value
-            ] = self.validate_wmts(
-                links[group][structs.MapProtocolType.WMTS.value],
-                layer_name,
-                header=header,
-                token=token,
+            links[group]["is_valid"][structs.MapProtocolType.WMTS.value] = (
+                self.validate_wmts(
+                    links[group][structs.MapProtocolType.WMTS.value],
+                    layer_name,
+                    header=header,
+                    token=token,
+                )
             )
             if not links[group]["is_valid"][structs.MapProtocolType.WMTS.value]:
                 _log.error(
                     f"WMTS layer not found on capabilities, layer name: [{layer_name}]"
                 )
-                links[group]["is_valid"][
-                    structs.MapProtocolType.WMTS_LAYER.value
-                ] = False
+                links[group]["is_valid"][structs.MapProtocolType.WMTS_LAYER.value] = (
+                    False
+                )
 
-            links[group]["is_valid"][
-                structs.MapProtocolType.WMTS_KVP.value
-            ] = self.validate_wmts_kvp(
-                links[group][structs.MapProtocolType.WMTS_KVP.value],
-                layer_name,
-                header=header,
-                token=token,
+            links[group]["is_valid"][structs.MapProtocolType.WMTS_KVP.value] = (
+                self.validate_wmts_kvp(
+                    links[group][structs.MapProtocolType.WMTS_KVP.value],
+                    layer_name,
+                    header=header,
+                    token=token,
+                )
             )
 
             if not links[group]["is_valid"][structs.MapProtocolType.WMTS_KVP.value]:
                 _log.error(
                     f"WMTS layer not found on KVP capabilities, layer name: [{layer_name}]"
                 )
-                links[group]["is_valid"][
-                    structs.MapProtocolType.WMTS_KVP.value
-                ] = False
+                links[group]["is_valid"][structs.MapProtocolType.WMTS_KVP.value] = False
 
             else:
                 # check that wmts include the new layer on capabilities
@@ -134,16 +132,16 @@ class MapproxyHandler:
                         f"WMTS capabilities not found for layer: [{layer_name}]"
                     )
                 wmts_tile_properties = list_of_wmts_layers[0]
-                wmts_template_url = list_of_wmts_layers[0]['ResourceURL']['@template']
-                links[group]["is_valid"][
-                    structs.MapProtocolType.WMTS.value
-                ] = self.validate_wmts_layer(
-                    wmts_template_url=wmts_template_url,
-                    wmts_tile_matrix_set=wmts_tile_properties,
-                    layer_name=layer_name,
-                    layer_id=layer_id,
-                    header=header,
-                    token=token
+                wmts_template_url = list_of_wmts_layers[0]["ResourceURL"]["@template"]
+                links[group]["is_valid"][structs.MapProtocolType.WMTS.value] = (
+                    self.validate_wmts_layer(
+                        wmts_template_url=wmts_template_url,
+                        wmts_tile_matrix_set=wmts_tile_properties,
+                        layer_name=layer_name,
+                        layer_id=layer_id,
+                        header=header,
+                        token=token,
+                    )
                 )
 
         validation = True
@@ -219,9 +217,7 @@ class MapproxyHandler:
             if token:
                 wmts_kvp_capabilities = common.get_xml_as_dict(wmts_kvp_url, token)
             else:
-                wmts_kvp_capabilities = common.get_xml_as_dict(
-                    wmts_kvp_url, header
-                )
+                wmts_kvp_capabilities = common.get_xml_as_dict(wmts_kvp_url, header)
         except Exception as e:
             _log.info(f"Failed wmts kvp validation with error: [{str(e)}]")
             return False
@@ -233,7 +229,13 @@ class MapproxyHandler:
         return exists
 
     def validate_wmts_layer(
-            self, wmts_template_url, wmts_tile_matrix_set, layer_name, layer_id, header, token
+        self,
+        wmts_template_url,
+        wmts_tile_matrix_set,
+        layer_name,
+        layer_id,
+        header,
+        token,
     ):
         """
         This method will provide if wmts layer protocol provide access to tiles
@@ -246,9 +248,8 @@ class MapproxyHandler:
         product_version = splited_layer_name[1]
 
         object_key = layer_id.split("/")[0]
-            # object_key = layer_id
+        # object_key = layer_id
         try:
-
             # check access to random tile by wmts_layer url
             if self.__tiles_storage_provide.lower() == "s3":
                 entrypoint = self.__s3_credential.get_entrypoint_url()
@@ -259,8 +260,8 @@ class MapproxyHandler:
 
                 list_of_tiles = s3_conn.list_folder_content(bucket_name, object_key)
             elif (
-                    self.__tiles_storage_provide.lower() == "fs"
-                    or self.__tiles_storage_provide.lower() == "nfs"
+                self.__tiles_storage_provide.lower() == "fs"
+                or self.__tiles_storage_provide.lower() == "nfs"
             ):
                 path = os.path.join(self.__nfs_tiles_url, object_key)
                 list_of_tiles = []
@@ -270,8 +271,8 @@ class MapproxyHandler:
                         if ".png" in file:
                             list_of_tiles.append(os.path.join(r, file))
             elif (
-                    self.__tiles_storage_provide.lower() == "pv"
-                    or self.__tiles_storage_provide.lower() == "pvc"
+                self.__tiles_storage_provide.lower() == "pv"
+                or self.__tiles_storage_provide.lower() == "pvc"
             ):
                 _log.warning("pvc not implemented yet for spider tiles folder")
                 list_of_tiles = []
@@ -295,11 +296,18 @@ class MapproxyHandler:
             wmts_template_url += f"?token={token}"
             resp = base_requests.send_get_request(wmts_template_url, header=header)
             cache_header = resp.headers.get("cache-control")
-            is_valid_cache_control = validate_cache_control(cache_control_value=cache_header,
-                                                            expected_max_age=cache_valid_value)
-            url_valid = resp.status_code == structs.ResponseCode.Ok.value and is_valid_cache_control["is_valid"]
-            cache_error = is_valid_cache_control["reason"] if not is_valid_cache_control[
-                "is_valid"] else 'Cache validation passed'
+            is_valid_cache_control = validate_cache_control(
+                cache_control_value=cache_header, expected_max_age=cache_valid_value
+            )
+            url_valid = (
+                resp.status_code == structs.ResponseCode.Ok.value
+                and is_valid_cache_control["is_valid"]
+            )
+            cache_error = (
+                is_valid_cache_control["reason"]
+                if not is_valid_cache_control["is_valid"]
+                else "Cache validation passed"
+            )
             print(f"Cache control validation status : {cache_error}")
 
         except Exception as e:

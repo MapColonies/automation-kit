@@ -20,8 +20,12 @@ def validate_json(data, schema, field_values):
         for field, value in field_values.items():
             if data.get(field) != value:
                 is_validate["valid"] = False
-                is_validate["message"] = f"Field '{field}' has value '{data.get(field)}', expected '{value}'"
-                raise ValidationError(f"Field '{field}' has value '{data.get(field)}', expected '{value}'")
+                is_validate["message"] = (
+                    f"Field '{field}' has value '{data.get(field)}', expected '{value}'"
+                )
+                raise ValidationError(
+                    f"Field '{field}' has value '{data.get(field)}', expected '{value}'"
+                )
             return is_validate
 
         is_validate["valid"] = True
