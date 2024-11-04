@@ -179,19 +179,22 @@ class S3Client:
         """
         if not self.is_object_exists(bucket_name, object_key):
             return True
+        resp = {}
         try:
-            objects_to_delete = self._resource.meta.client.list_objects(
+            paginator = self._client.get_paginator('list_objects_v2')
+            pages = paginator.paginate(
                 Bucket=bucket_name, Prefix=object_key
             )
-            delete_keys = {"Objects": []}
-            delete_keys["Objects"] = [
-                {"Key": k}
-                for k in [obj["Key"] for obj in objects_to_delete.get("Contents", [])]
-            ]
-
-            resp = self._resource.meta.client.delete_objects(
-                Bucket=bucket_name, Delete=delete_keys
-            )
+            for page in pages:
+                delete_keys = {"Objects": []}
+                delete_keys["Objects"] = [
+                    {"Key": k}
+                    for k in [obj["Key"]
+                        for obj in page['Contents']]
+                ]
+                resp.update(self._resource.meta.client.delete_objects(
+                    Bucket=bucket_name, Delete=delete_keys
+                ))
             return resp
 
         except botocore.exceptions.ClientError as e:
