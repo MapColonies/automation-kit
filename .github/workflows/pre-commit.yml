@@ -1,9 +1,8 @@
 name: pre-commit
 
 on:
-  pull_request:
   push:
-    branches: [main]
+    branches: ["*"]  # This will trigger on push to any branch
 
 jobs:
   pre-commit:
@@ -19,9 +18,6 @@ jobs:
 
     - name: Install pre-commit
       run: pip install pre-commit
-
-    - name: Install hooks
-      run: pre-commit install
 
     - name: Run pre-commit hooks
       run: pre-commit run --all-files
