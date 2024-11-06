@@ -1,9 +1,9 @@
 """
 This module will wrap and provide api's functionality of layer spec api of sync services
 """
+
 import json
 import logging
-import time
 
 from mc_automation_tools import base_requests
 from mc_automation_tools import common
@@ -63,7 +63,7 @@ class LayerSpec:
         elif isinstance(update_value, str):
             body = {"tilesBatchCount": update_value}
         elif not isinstance(update_value, str):
-            raise ValueError(f"params is not on valid params -> json|dict|str")
+            raise ValueError("params is not on valid params -> json|dict|str")
 
         resp = base_requests.send_put_request(url, body)
         status_code, content_dict = common.response_parser(resp)

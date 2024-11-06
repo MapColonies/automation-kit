@@ -1,6 +1,7 @@
 """
 This module is the wrapper for job manager api according provided swagger
 """
+
 import json
 import logging
 import time
@@ -102,7 +103,7 @@ class JobsTasksManager:
         if isinstance(body, dict):
             body = json.dumps(body)
         elif not isinstance(body, str):
-            raise ValueError(f"params is not on valid params -> json or dict")
+            raise ValueError("params is not on valid params -> json or dict")
 
         resp = base_requests.send_post_request(url, body)
         if resp.status_code != config.ResponseCode.ChangeOk.value:
@@ -149,7 +150,7 @@ class JobsTasksManager:
         if isinstance(body, dict):
             body = json.dumps(body)
         elif not isinstance(body, str):
-            raise ValueError(f"params is not on valid params -> json or dict")
+            raise ValueError("params is not on valid params -> json or dict")
         resp = base_requests.send_put_request(url, body)
         if resp.status_code != config.ResponseCode.Ok.value:
             raise Exception(

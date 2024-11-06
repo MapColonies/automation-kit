@@ -1,14 +1,13 @@
 """
 This is mc-automation-board
 """
+
 import json
 import os
-from typing import List
-from typing import Tuple
-
 import streamlit as st
+from PIL import Image
 
-from mc_automation_tools import common
+
 
 CONF_FILE = "/home/ronenk1/dev/automation-kit/configuration.json"
 
@@ -20,10 +19,10 @@ if not CONF_FILE:
 with open(CONF_FILE, "r") as fp:
     conf = json.load(fp)
 
-from PIL import Image
 
 image = Image.open("mapcolonies_logo.png")
 st.image(image, width=None)
+
 
 # path = os.path.dirname(__file__)
 # my_file = path+'/mapcolonies_logo.png'

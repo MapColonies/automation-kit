@@ -1,10 +1,11 @@
 """
 This module provide data validation utils testing data on pycsw [catalog] data
 """
+
 import logging
 
 import xmltodict
-from discrete_kit.validator.json_compare_pycsw import *
+from discrete_kit.validator.json_compare_pycsw import validate_pycsw_with_shape_json
 
 from mc_automation_tools import base_requests
 from mc_automation_tools.configuration import config
@@ -185,7 +186,9 @@ class PycswHandler:
                     ]
                 )
                 if not isinstance(current_records, list):
-                    print(f"Current_records type is {type(current_records)}: value: {current_records}")
+                    print(
+                        f"Current_records type is {type(current_records)}: value: {current_records}"
+                    )
                     current_records = [current_records]
                     records_list = records_list + current_records
                 records_list = records_list + current_records

@@ -1,4 +1,5 @@
-""" This module provide ssh and bash funcionallity"""
+"""This module provide ssh and bash funcionallity"""
+
 import logging
 import os
 

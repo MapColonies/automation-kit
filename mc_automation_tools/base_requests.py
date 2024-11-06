@@ -2,6 +2,7 @@
 """
 This module wrapping http protocol request sending [get, post and etc.]
 """
+
 import json
 import logging
 
@@ -15,10 +16,10 @@ _log = logging.getLogger("mc_automation_tools.requests")
 
 # ToDo : Change Logic?
 def send_post_binary_request(
-        url,
-        data=None,
-        header=None,
-        params=None,
+    url,
+    data=None,
+    header=None,
+    params=None,
 ):
     """
     This method will execute similar post http request execution but,
@@ -161,10 +162,11 @@ def send_delete_request(url, params=None, data=None):
     """
     common.url_validator(url)
     try:
-
         if not config.CERT_DIR:
             if params is not None and data is not None:
-                raise ValueError("Use either params or data for DELETE requests, not both.")
+                raise ValueError(
+                    "Use either params or data for DELETE requests, not both."
+                )
 
             if params:
                 resp = requests.delete(url, params=params, timeout=120)
@@ -176,7 +178,9 @@ def send_delete_request(url, params=None, data=None):
             # resp = requests.delete(url, data=params, timeout=120)
         else:
             if params is not None and data is not None:
-                raise ValueError("Use either params or data for DELETE requests, not both.")
+                raise ValueError(
+                    "Use either params or data for DELETE requests, not both."
+                )
             if params:
                 resp = requests.delete(
                     url, params=params, verify=config.CERT_DIR, timeout=120

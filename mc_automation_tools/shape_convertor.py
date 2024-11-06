@@ -1,6 +1,6 @@
 """This module provide class that convert shape file into readable geojson"""
+
 import datetime
-import decimal
 import enum
 import os
 

@@ -1,4 +1,5 @@
 """Unittest for postgress client adapter"""
+
 import json
 import os
 from datetime import datetime as dt

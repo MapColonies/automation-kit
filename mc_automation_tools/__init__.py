@@ -1,4 +1,5 @@
 """Init of automation tool package"""
+
 import logging
 
 logger = logging.getLogger()
