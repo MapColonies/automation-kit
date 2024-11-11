@@ -16,10 +16,10 @@ _log = logging.getLogger("mc_automation_tools.requests")
 
 # ToDo : Change Logic?
 def send_post_binary_request(
-    url,
-    data=None,
-    header=None,
-    params=None,
+        url,
+        data=None,
+        header=None,
+        params=None,
 ):
     """
     This method will execute similar post http request execution but,
@@ -121,7 +121,7 @@ def send_get_request(url, params=None, header=None):
     return resp
 
 
-def send_put_request(url, data, header=None):
+def send_put_request(url, data=None, json=None, header=None):
     """
     send http put request by providing put url + body
     :param url: url to get request
@@ -135,10 +135,10 @@ def send_put_request(url, data, header=None):
             header = {"content-type": "application/json", "accept": "*/*"}
 
         if not config.CERT_DIR:
-            resp = requests.put(url, data=data, headers=header, timeout=120)
+            resp = requests.put(url, data=data, json=json, headers=header, timeout=120)
         else:
             resp = requests.put(
-                url, data=data, headers=header, verify=config.CERT_DIR, timeout=120
+                url, data=data, json=json, headers=header, verify=config.CERT_DIR, timeout=120
             )
         _log.debug("response code: %d", resp.status_code)
         _log.debug("response message: %s", resp.content)
