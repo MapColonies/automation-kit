@@ -56,7 +56,7 @@ def send_post_binary_request(
     return resp
 
 
-def send_post_request(url, body=None, header=None, params=None):
+def send_post_request(url, body=None, header=None, params=None, json_format=True):
     """send http post request by providing post full url + body , header is optional, by default:content-type': 'application/json',
     "accept": "*/*"""
     if body is None:
@@ -66,17 +66,23 @@ def send_post_request(url, body=None, header=None, params=None):
         header = {"content-type": "application/json", "accept": "*/*"}
     try:
         if not config.CERT_DIR:
-            resp = requests.post(
-                url=url, data=json.dumps(body), headers=header, params=params
-            )
+            if json_format:
+                resp = requests.post(
+                    url=url, data=json.dumps(body), headers=header, params=params, verify=False
+                )
+            else:
+                resp = requests.post(
+                    url=url, data=body, headers=header, params=params, verify=False
+                )
         else:
-            resp = requests.post(
-                url=url,
-                data=json.dumps(body),
-                headers=header,
-                verify=config.CERT_DIR,
-                params=params,
-            )
+            if json_format:
+                resp = requests.post(
+                    url=url, data=json.dumps(body), headers=header, verify=config.CERT_DIR, params=params,
+                )
+            else:
+                resp = requests.post(
+                    url=url, data=body, headers=header, verify=config.CERT_DIR, params=params,
+                )
         _log.debug("response code: %d", resp.status_code)
         _log.debug("response message: %s", resp.text)
 
@@ -103,7 +109,7 @@ def send_get_request(url, params=None, header=None):
         header = {"content-type": "application/json"}
     try:
         if not config.CERT_DIR:
-            resp = requests.get(url, params, headers=header)
+            resp = requests.get(url, params, headers=header, verify=False)
         else:
             resp = requests.get(
                 url, params, verify=config.CERT_DIR, timeout=120, headers=header
@@ -121,7 +127,7 @@ def send_get_request(url, params=None, header=None):
     return resp
 
 
-def send_put_request(url, data=None, json=None, header=None):
+def send_put_request(url, data, header=None):
     """
     send http put request by providing put url + body
     :param url: url to get request
@@ -135,10 +141,10 @@ def send_put_request(url, data=None, json=None, header=None):
             header = {"content-type": "application/json", "accept": "*/*"}
 
         if not config.CERT_DIR:
-            resp = requests.put(url, data=data, json=json, headers=header, timeout=120)
+            resp = requests.put(url, data=data, headers=header, timeout=120)
         else:
             resp = requests.put(
-                url, data=data, json=json, headers=header, verify=config.CERT_DIR, timeout=120
+                url, data=data, headers=header, verify=config.CERT_DIR, timeout=120
             )
         _log.debug("response code: %d", resp.status_code)
         _log.debug("response message: %s", resp.content)

@@ -31,12 +31,12 @@ class StorageProvider:
     """This class provide gathered access to core's storage credential"""
 
     def __init__(
-        self,
-        source_data_provider=None,
-        tiles_provider=None,
-        fs_provider=None,
-        s3_credential=None,
-        pvc_handler_url=None,
+            self,
+            source_data_provider=None,
+            tiles_provider=None,
+            fs_provider=None,
+            s3_credential=None,
+            pvc_handler_url=None,
     ):
         self.__source_data_provider = source_data_provider
         self.__tiles_provider = tiles_provider
@@ -64,12 +64,12 @@ class FSProvider:
     """This class provide relevant variables for fs mode"""
 
     def __init__(
-        self,
-        is_fs=False,
-        root_dir_path=None,
-        src_relative_path=None,
-        dst_relative_path=None,
-        tiles_dir=None,
+            self,
+            is_fs=False,
+            root_dir_path=None,
+            src_relative_path=None,
+            dst_relative_path=None,
+            tiles_dir=None,
     ):
         self.__is_fs = is_fs
         self.__root_dir_path = root_dir_path
@@ -130,6 +130,7 @@ class MapProtocolType(enum.Enum):
     WMTS_LAYER = "WMTS_LAYER"
     WMTS_BASE = "WMTS_BASE"
     WMTS_KVP = "WMTS_KVP"
+    WFS = "WFS"
 
 
 class tile_storage_provider(enum.Enum):

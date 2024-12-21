@@ -19,12 +19,12 @@ class MapproxyHandler:
     """
 
     def __init__(
-        self,
-        entrypoint_url,
-        tiles_storage_provide,
-        grid_origin="ul",
-        s3_credential=None,
-        nfs_tiles_url=None,
+            self,
+            entrypoint_url,
+            tiles_storage_provide,
+            grid_origin="ul",
+            s3_credential=None,
+            nfs_tiles_url=None,
     ):
         self.__entrypoint_url = entrypoint_url
         self.__tiles_storage_provide = tiles_storage_provide
@@ -33,14 +33,14 @@ class MapproxyHandler:
         self.__nfs_tiles_url = nfs_tiles_url
 
     def validate_layer_from_pycsw(
-        self,
-        pycsw_records,
-        product_id,
-        product_version,
-        layer_id,
-        header=None,
-        WMS_FLAG=None,
-        token=None,
+            self,
+            pycsw_records,
+            product_id,
+            product_version,
+            layer_id,
+            header=None,
+            WMS_FLAG=None,
+            token=None,
     ):
         """
         This method will extract the url's of mapproxy and validate access to new layer
@@ -55,7 +55,7 @@ class MapproxyHandler:
         links = self.extract_from_pycsw(pycsw_records)
         for product_type in links.keys():
             for li in links[product_type]:
-                if li == "WMS" or li == "WMTS_KVP":
+                if li == "WMS" or li == "WMTS_KVP" or li == "WFS":
                     links[product_type][li] += f"&token={token}"
                 elif li == "WMTS_BASE":
                     links[product_type][li] += f"/{product_id}-{product_type}"
@@ -70,7 +70,7 @@ class MapproxyHandler:
             # check that wms include the new layer on capabilities
             # WMS_FLAG=None
             # if WMS_FLAG is not None:
-            if os.getenv("WMS_FLAG") is not None:
+            if os.getenv("WMS_FLAG") is None:
                 links[group]["is_valid"][structs.MapProtocolType.WMS.value] = (
                     self.validate_wms(
                         links[group][structs.MapProtocolType.WMS.value],
@@ -114,6 +114,21 @@ class MapproxyHandler:
                     f"WMTS layer not found on KVP capabilities, layer name: [{layer_name}]"
                 )
                 links[group]["is_valid"][structs.MapProtocolType.WMTS_KVP.value] = False
+
+            links[group]["is_valid"][structs.MapProtocolType.WFS.value] = (
+                self.validate_wfs_capabilities(
+                    links[group][structs.MapProtocolType.WFS.value],
+                    layer_name,
+                    header=header,
+                    token=token,
+                )
+            )
+
+            if not links[group]["is_valid"][structs.MapProtocolType.WFS.value]:
+                _log.error(
+                    f"WFS layer not found on WFS capabilities, layer name: [{layer_name}]"
+                )
+                links[group]["is_valid"][structs.MapProtocolType.WFS.value] = False
 
             else:
                 # check that wmts include the new layer on capabilities
@@ -206,6 +221,29 @@ class MapproxyHandler:
         return exists
 
     @classmethod
+    def validate_wfs_capabilities(cls, wfs_url, layer_name, header, token=None):
+        """
+        This method will provide if layer exists in wfs capabilities or not
+        :param wfs_url: url for all wfs capabilities on server (mapproxy)
+        :param layer_name: orthophoto layer id
+        """
+
+        try:
+            if token:
+                wfs_capabilities = common.get_xml_as_dict(wfs_url, token)
+            else:
+                wfs_capabilities = common.get_xml_as_dict(wfs_url, header)
+        except Exception as e:
+            _log.info(f"Failed WFS get capabilities validation with error: [{str(e)}]")
+            return False
+        layer_name = "polygonParts:" + layer_name
+        exists = layer_name in [
+            layer["Name"]
+            for layer in wfs_capabilities["wfs:WFS_Capabilities"]["FeatureTypeList"]["FeatureType"]
+        ]
+        return exists
+
+    @classmethod
     def validate_wmts_kvp(cls, wmts_kvp_url, layer_name, header, token=None):
         """
         This method will provide if layer exists in wmts kvp capabilities or not
@@ -229,13 +267,13 @@ class MapproxyHandler:
         return exists
 
     def validate_wmts_layer(
-        self,
-        wmts_template_url,
-        wmts_tile_matrix_set,
-        layer_name,
-        layer_id,
-        header,
-        token,
+            self,
+            wmts_template_url,
+            wmts_tile_matrix_set,
+            layer_name,
+            layer_id,
+            header,
+            token,
     ):
         """
         This method will provide if wmts layer protocol provide access to tiles
@@ -260,8 +298,8 @@ class MapproxyHandler:
 
                 list_of_tiles = s3_conn.list_folder_content(bucket_name, object_key)
             elif (
-                self.__tiles_storage_provide.lower() == "fs"
-                or self.__tiles_storage_provide.lower() == "nfs"
+                    self.__tiles_storage_provide.lower() == "fs"
+                    or self.__tiles_storage_provide.lower() == "nfs"
             ):
                 path = os.path.join(self.__nfs_tiles_url, object_key)
                 list_of_tiles = []
@@ -271,8 +309,8 @@ class MapproxyHandler:
                         if ".png" in file:
                             list_of_tiles.append(os.path.join(r, file))
             elif (
-                self.__tiles_storage_provide.lower() == "pv"
-                or self.__tiles_storage_provide.lower() == "pvc"
+                    self.__tiles_storage_provide.lower() == "pv"
+                    or self.__tiles_storage_provide.lower() == "pvc"
             ):
                 _log.warning("pvc not implemented yet for spider tiles folder")
                 list_of_tiles = []
@@ -300,8 +338,8 @@ class MapproxyHandler:
                 cache_control_value=cache_header, expected_max_age=cache_valid_value
             )
             url_valid = (
-                resp.status_code == structs.ResponseCode.Ok.value
-                and is_valid_cache_control["is_valid"]
+                    resp.status_code == structs.ResponseCode.Ok.value
+                    and is_valid_cache_control["is_valid"]
             )
             cache_error = (
                 is_valid_cache_control["reason"]
@@ -320,21 +358,15 @@ class MapproxyHandler:
     def extract_from_pycsw(cls, pycsw_records):
         """
         This method generate dict of layers list from provided pycsw records list
-        :param pycsw_records: list[dict] -> records per given layer
+        :param pycsw_records: dict -> record of given layer
         :return: dict -> {product_type: {protocol}}
         """
         links = {}
-        for records in pycsw_records:
-            links[records["mc:productType"]] = {
-                link["@scheme"]: link["#text"] for link in records["mc:links"]
-            }
+        links[pycsw_records["mc:productType"]] = {
+            link["@scheme"]: link["#text"] for link in pycsw_records["mc:links"]
+        }
 
-        # todo -> this section maybe unnecessary
-        results = dict.fromkeys(list(links.keys()), dict())
-        for link_group in list(links.keys()):
-            results[link_group] = {k: v for k, v in links[link_group].items()}
-
-        return results
+        return links
 
     # todo -> validate if actually in use
     # def validate_new_discrete(self, pycsw_records, product_id, product_version):
@@ -391,17 +423,17 @@ class MapproxyHandler:
     #
     #         # check access to random tile by wmts_layer url
     #         if (
-    #                 config.TEST_ENV == config.EnvironmentTypes.QA.name
-    #                 or config.TEST_ENV == config.EnvironmentTypes.DEV.name
+    #                 configuration.TEST_ENV == configuration.EnvironmentTypes.QA.name
+    #                 or configuration.TEST_ENV == configuration.EnvironmentTypes.DEV.name
     #         ):
     #             s3_conn = s3.S3Client(
-    #                 config.S3_END_POINT, config.S3_ACCESS_KEY, config.S3_SECRET_KEY
+    #                 configuration.S3_END_POINT, configuration.S3_ACCESS_KEY, configuration.S3_SECRET_KEY
     #             )
     #             list_of_tiles = s3_conn.list_folder_content(
-    #                 config.S3_BUCKET_NAME, "/".join([product_id, product_version])
+    #                 configuration.S3_BUCKET_NAME, "/".join([product_id, product_version])
     #             )
-    #         elif config.TEST_ENV == config.EnvironmentTypes.PROD.name:
-    #             path = os.path.join(config.NFS_TILES_DIR, product_id, product_version)
+    #         elif configuration.TEST_ENV == configuration.EnvironmentTypes.PROD.name:
+    #             path = os.path.join(configuration.NFS_TILES_DIR, product_id, product_version)
     #             list_of_tiles = []
     #             # r=root, d=directories, f = files
     #             for r, d, f in os.walk(path):
@@ -409,7 +441,7 @@ class MapproxyHandler:
     #                     if ".png" in file:
     #                         list_of_tiles.append(os.path.join(r, file))
     #         else:
-    #             raise Exception(f"Illegal environment value type: {config.TEST_ENV}")
+    #             raise Exception(f"Illegal environment value type: {configuration.TEST_ENV}")
     #
     #         zxy = list_of_tiles[len(list_of_tiles) - 1].split("/")[-3:]
     #         zxy[2] = zxy[2].split(".")[0]
@@ -426,7 +458,7 @@ class MapproxyHandler:
     #         )  # formatted url for testing
     #         resp = base_requests.send_get_request(wmts_layers_url)
     #         results[group]["is_valid"]["WMTS_LAYER"] = (
-    #                 resp.status_code == config.ResponseCode.Ok.value
+    #                 resp.status_code == configuration.ResponseCode.Ok.value
     #         )
     #
     #     # validation iteration -> check if all URL's state is True
