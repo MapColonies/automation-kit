@@ -130,7 +130,6 @@ class MapProtocolType(enum.Enum):
     WMTS_LAYER = "WMTS_LAYER"
     WMTS_BASE = "WMTS_BASE"
     WMTS_KVP = "WMTS_KVP"
-    WFS = "WFS"
 
 
 class tile_storage_provider(enum.Enum):

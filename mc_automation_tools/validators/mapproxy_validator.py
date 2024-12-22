@@ -55,7 +55,7 @@ class MapproxyHandler:
         links = self.extract_from_pycsw(pycsw_records)
         for product_type in links.keys():
             for li in links[product_type]:
-                if li == "WMS" or li == "WMTS_KVP" or li == "WFS":
+                if li == "WMS" or li == "WMTS_KVP":
                     links[product_type][li] += f"&token={token}"
                 elif li == "WMTS_BASE":
                     links[product_type][li] += f"/{product_id}-{product_type}"
@@ -68,9 +68,7 @@ class MapproxyHandler:
             links[group]["is_valid"] = {}
 
             # check that wms include the new layer on capabilities
-            # WMS_FLAG=None
-            # if WMS_FLAG is not None:
-            if os.getenv("WMS_FLAG") is None:
+            if os.getenv("WMS_FLAG"):
                 links[group]["is_valid"][structs.MapProtocolType.WMS.value] = (
                     self.validate_wms(
                         links[group][structs.MapProtocolType.WMS.value],
@@ -114,21 +112,6 @@ class MapproxyHandler:
                     f"WMTS layer not found on KVP capabilities, layer name: [{layer_name}]"
                 )
                 links[group]["is_valid"][structs.MapProtocolType.WMTS_KVP.value] = False
-
-            links[group]["is_valid"][structs.MapProtocolType.WFS.value] = (
-                self.validate_wfs_capabilities(
-                    links[group][structs.MapProtocolType.WFS.value],
-                    layer_name,
-                    header=header,
-                    token=token,
-                )
-            )
-
-            if not links[group]["is_valid"][structs.MapProtocolType.WFS.value]:
-                _log.error(
-                    f"WFS layer not found on WFS capabilities, layer name: [{layer_name}]"
-                )
-                links[group]["is_valid"][structs.MapProtocolType.WFS.value] = False
 
             else:
                 # check that wmts include the new layer on capabilities
@@ -217,29 +200,6 @@ class MapproxyHandler:
         exists = layer_name in [
             layer["ows:Title"]
             for layer in wmts_capabilities["Capabilities"]["Contents"]["Layer"]
-        ]
-        return exists
-
-    @classmethod
-    def validate_wfs_capabilities(cls, wfs_url, layer_name, header, token=None):
-        """
-        This method will provide if layer exists in wfs capabilities or not
-        :param wfs_url: url for all wfs capabilities on server (mapproxy)
-        :param layer_name: orthophoto layer id
-        """
-
-        try:
-            if token:
-                wfs_capabilities = common.get_xml_as_dict(wfs_url, token)
-            else:
-                wfs_capabilities = common.get_xml_as_dict(wfs_url, header)
-        except Exception as e:
-            _log.info(f"Failed WFS get capabilities validation with error: [{str(e)}]")
-            return False
-        layer_name = "polygonParts:" + layer_name
-        exists = layer_name in [
-            layer["Name"]
-            for layer in wfs_capabilities["wfs:WFS_Capabilities"]["FeatureTypeList"]["FeatureType"]
         ]
         return exists
 
