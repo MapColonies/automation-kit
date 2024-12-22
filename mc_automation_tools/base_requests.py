@@ -14,12 +14,11 @@ from mc_automation_tools.configuration import config
 _log = logging.getLogger("mc_automation_tools.requests")
 
 
-# ToDo : Change Logic?
 def send_post_binary_request(
-    url,
-    data=None,
-    header=None,
-    params=None,
+        url,
+        data=None,
+        header=None,
+        params=None,
 ):
     """
     This method will execute similar post http request execution but,
@@ -56,7 +55,7 @@ def send_post_binary_request(
     return resp
 
 
-def send_post_request(url, body=None, header=None, params=None):
+def send_post_request(url, body=None, header=None, params=None, json_format=True):
     """send http post request by providing post full url + body , header is optional, by default:content-type': 'application/json',
     "accept": "*/*"""
     if body is None:
@@ -66,17 +65,23 @@ def send_post_request(url, body=None, header=None, params=None):
         header = {"content-type": "application/json", "accept": "*/*"}
     try:
         if not config.CERT_DIR:
-            resp = requests.post(
-                url=url, data=json.dumps(body), headers=header, params=params
-            )
+            if json_format:
+                resp = requests.post(
+                    url=url, data=json.dumps(body), headers=header, params=params, verify=False
+                )
+            else:
+                resp = requests.post(
+                    url=url, data=body, headers=header, params=params, verify=False
+                )
         else:
-            resp = requests.post(
-                url=url,
-                data=json.dumps(body),
-                headers=header,
-                verify=config.CERT_DIR,
-                params=params,
-            )
+            if json_format:
+                resp = requests.post(
+                    url=url, data=json.dumps(body), headers=header, verify=config.CERT_DIR, params=params,
+                )
+            else:
+                resp = requests.post(
+                    url=url, data=body, headers=header, verify=config.CERT_DIR, params=params,
+                )
         _log.debug("response code: %d", resp.status_code)
         _log.debug("response message: %s", resp.text)
 
@@ -103,7 +108,7 @@ def send_get_request(url, params=None, header=None):
         header = {"content-type": "application/json"}
     try:
         if not config.CERT_DIR:
-            resp = requests.get(url, params, headers=header)
+            resp = requests.get(url, params, headers=header, verify=False)
         else:
             resp = requests.get(
                 url, params, verify=config.CERT_DIR, timeout=120, headers=header

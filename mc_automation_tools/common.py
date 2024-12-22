@@ -241,7 +241,7 @@ def get_xml_as_dict(url, header=None, token=None):
                 url + "?token=" + token, verify=cert_dir, timeout=120
             )
         else:
-            response = requests.get(url)
+            response = requests.get(url=url, verify=False)
         dict_data = xmltodict.parse(response.content)
         return dict_data
 
