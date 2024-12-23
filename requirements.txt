@@ -17,9 +17,4 @@ wheel==0.44.0
 xmltodict==0.14.2
 streamlit==1.39.0
 pillow==10.4.0
-<<<<<<< HEAD
-geopandas==1.0.1
-=======
-geopandas==1.0.1
 mc-discrete-kit==0.0.30
->>>>>>> dd39efed6146234cb22e685384dd1eec13d9cdd0
