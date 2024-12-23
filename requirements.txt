@@ -4,7 +4,6 @@ geopandas==1.0.1
 gpval==0.0.10
 graphqlclient==0.2.4
 jsonschema==4.23.0
-mc-discrete-kit==0.0.30
 ogr==0.50.2
 pandas==2.2.3
 paramiko==3.5.0
@@ -13,10 +12,14 @@ psycopg2-binary==2.9.10
 PyJWT==2.9.0
 python-graphql-client==0.4.3
 requests==2.32.3
-setuptools==50.3.2
 shapely==2.0.6
 wheel==0.44.0
 xmltodict==0.14.2
 streamlit==1.39.0
 pillow==10.4.0
+<<<<<<< HEAD
 geopandas==1.0.1
+=======
+geopandas==1.0.1
+mc-discrete-kit==0.0.30
+>>>>>>> dd39efed6146234cb22e685384dd1eec13d9cdd0
