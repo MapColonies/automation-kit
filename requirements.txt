@@ -1,5 +1,5 @@
-boto3==1.16.43
-botocore==1.19.43
+boto3==1.35.86
+botocore==1.35.86
 geopandas==1.0.1
 gpval==0.0.10
 graphqlclient==0.2.4
