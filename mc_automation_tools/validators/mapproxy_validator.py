@@ -41,12 +41,14 @@ class MapproxyHandler:
             header=None,
             WMS_FLAG=None,
             token=None,
+            tile_to_check=None,
     ):
         """
         This method will extract the url's of mapproxy and validate access to new layer
         :param pycsw_records: list[dict] -> records per given layer
         :param product_id: layer id
         :param product_version: layer version
+        :param tile_to_check: str, optional A specific tile to validate for WMTS layer access.
         :return: dict -> result state + detailed reason about layers
         """
         if not pycsw_records:
@@ -82,6 +84,7 @@ class MapproxyHandler:
                         f"WMS layer not found on capabilities, layer name: [{layer_name}]"
                     )
 
+            # check that WMTS url returns the new layer on get capabilities request
             links[group]["is_valid"][structs.MapProtocolType.WMTS.value] = (
                 self.validate_wmts(
                     links[group][structs.MapProtocolType.WMTS.value],
@@ -98,6 +101,7 @@ class MapproxyHandler:
                     False
                 )
 
+            # check that WMTS KVP url returns the new layer on get capabilities request
             links[group]["is_valid"][structs.MapProtocolType.WMTS_KVP.value] = (
                 self.validate_wmts_kvp(
                     links[group][structs.MapProtocolType.WMTS_KVP.value],
@@ -131,16 +135,29 @@ class MapproxyHandler:
                     )
                 wmts_tile_properties = list_of_wmts_layers[0]
                 wmts_template_url = list_of_wmts_layers[0]["ResourceURL"]["@template"]
-                links[group]["is_valid"][structs.MapProtocolType.WMTS.value] = (
-                    self.validate_wmts_layer(
-                        wmts_template_url=wmts_template_url,
-                        wmts_tile_matrix_set=wmts_tile_properties,
-                        layer_name=layer_name,
-                        layer_id=layer_id,
-                        header=header,
-                        token=token,
+                if tile_to_check != None:
+                    links[group]["is_valid"][structs.MapProtocolType.WMTS.value] = (
+                        self.validate_wmts_layer(
+                            wmts_template_url=wmts_template_url,
+                            wmts_tile_matrix_set=wmts_tile_properties,
+                            layer_name=layer_name,
+                            layer_id=layer_id,
+                            header=header,
+                            token=token,
+                            tile_to_check = tile_to_check,
+                        )
                     )
-                )
+                else:
+                    links[group]["is_valid"][structs.MapProtocolType.WMTS.value] = (
+                        self.validate_wmts_layer(
+                            wmts_template_url=wmts_template_url,
+                            wmts_tile_matrix_set=wmts_tile_properties,
+                            layer_name=layer_name,
+                            layer_id=layer_id,
+                            header=header,
+                            token=token,
+                        )
+                    )
 
         validation = True
         for group_name, value in links.items():
@@ -234,12 +251,15 @@ class MapproxyHandler:
             layer_id,
             header,
             token,
+            tile_to_check=None,
     ):
         """
         This method will provide if wmts layer protocol provide access to tiles
         :param wmts_template_url: url struct for get tiles with wmts protocol on mapproxy
         :param wmts_tile_matrix_set: properties of matrix set
         :param layer_name: orthophoto layer id -> "<product_id>-<product_version>"
+        :param tile_to_check: str, optional A specific tile to validate for WMTS layer access.
+
         """
         # splited_layer_name = layer_name.split("-")
         # product_id = splited_layer_name[0]
@@ -255,8 +275,10 @@ class MapproxyHandler:
                 secret_key = self.__s3_credential.get_secret_key()
                 bucket_name = self.__s3_credential.get_bucket_name()
                 s3_conn = s3storage.S3Client(entrypoint, access_key, secret_key)
-
-                list_of_tiles = s3_conn.list_folder_content(bucket_name, object_key)
+                if (tile_to_check != None):
+                    list_of_tiles = [tile_to_check]
+                else:
+                    list_of_tiles = s3_conn.list_folder_content(bucket_name, object_key)
             elif (
                     self.__tiles_storage_provide.lower() == "fs"
                     or self.__tiles_storage_provide.lower() == "nfs"
