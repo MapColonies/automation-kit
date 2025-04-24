@@ -275,7 +275,7 @@ class MapproxyHandler:
                 secret_key = self.__s3_credential.get_secret_key()
                 bucket_name = self.__s3_credential.get_bucket_name()
                 s3_conn = s3storage.S3Client(entrypoint, access_key, secret_key)
-                if (tile_to_check != None):
+                if tile_to_check is not None: 
                     list_of_tiles = [tile_to_check]
                 else:
                     list_of_tiles = s3_conn.list_folder_content(bucket_name, object_key)
